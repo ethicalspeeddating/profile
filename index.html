@@ -1147,6 +1147,38 @@
       return (backend ? backend : '') + '/unknown-man-and-woman.avif';
     }
 
+    function getSilhouetteSex(partnerSex) {
+      if (partnerSex) return partnerSex;
+      if (currentUser && currentUser.Sex === 'Male') return 'Female';
+      if (currentUser && currentUser.Sex === 'Female') return 'Male';
+      return '';
+    }
+
+    function applyMysteryPhotoStyles(imgEl, partnerSex, margin = '0 auto 24px') {
+      imgEl.src = getMysteryPhotoUrl();
+      imgEl.style.display = 'block';
+      imgEl.style.width = '232px';
+      imgEl.style.height = '250px';
+      imgEl.style.maxWidth = '100%';
+      imgEl.style.objectFit = 'cover';
+      const sex = getSilhouetteSex(partnerSex);
+      imgEl.style.objectPosition = sex === 'Male' ? '0% center' : '100% center';
+      imgEl.style.margin = margin;
+      imgEl.style.backgroundColor = '#333';
+    }
+
+    function clearMysteryPhotoStyles(imgEl) {
+      imgEl.style.display = 'block';
+      imgEl.style.aspectRatio = '';
+      imgEl.style.maxWidth = '';
+      imgEl.style.width = '';
+      imgEl.style.height = '';
+      imgEl.style.objectFit = '';
+      imgEl.style.objectPosition = '';
+      imgEl.style.margin = '';
+      imgEl.style.backgroundColor = '';
+    }
+
     async function ensureConstantsLoaded() {
       if (typeof window.ATTENDANCE_CONFIRMATION_EXPIRES !== 'undefined') {
         if (_activeBackendUrl === null) {
@@ -1743,7 +1775,15 @@
 
       if (options.photo) {
         overlayInfoPhoto.src = options.photo;
-        overlayInfoPhoto.onerror = () => { overlayInfoPhoto.src = getMysteryPhotoUrl(); };
+        const pSex = options.partnerSex;
+        overlayInfoPhoto.onerror = () => {
+          applyMysteryPhotoStyles(overlayInfoPhoto, pSex, '16px auto 0');
+        };
+        overlayInfoPhoto.onload = () => {
+          if (!overlayInfoPhoto.src.includes('unknown-man-and-woman.avif')) {
+            clearMysteryPhotoStyles(overlayInfoPhoto);
+          }
+        };
         overlayInfoPhoto.style.display = 'block';
       } else {
         overlayInfoPhoto.removeAttribute('src');
@@ -1802,7 +1842,12 @@
 
     function getPartnerPhotoSrc(partner) {
       if (!partner) return '';
-      return partner.photoUrl || partner.photo || (partner.hasPhoto && partner.uuid ? `/api/users/${partner.uuid}/photo` : '');
+      let src = partner.photoUrl || partner.photo || (partner.hasPhoto && partner.uuid ? `/api/users/${partner.uuid}/photo` : '');
+      if (src && src.startsWith('/')) {
+        const backend = getActiveBackendUrl();
+        src = (backend ? backend : '') + src;
+      }
+      return src;
     }
 
     function stopSchedulePollingInterval() {
@@ -1872,20 +1917,14 @@
           title: '',
           name: partner.firstName || 'Unknown',
           photo: getMysteryPhotoUrl(),
+          partnerSex: partner.sex,
           descriptionText: partner.description || '',
           showCloseButton: true,
           dateObj: dateObj,
         });
 
         if (overlayInfoPhoto) {
-          overlayInfoPhoto.style.backgroundColor = '#333';
-          overlayInfoPhoto.style.objectFit = 'cover';
-          overlayInfoPhoto.style.objectPosition = partner.sex === 'Male' ? '0% center' : '100% center';
-          overlayInfoPhoto.style.width = '232px';
-          overlayInfoPhoto.style.height = '250px';
-          overlayInfoPhoto.style.maxWidth = '100%';
-          overlayInfoPhoto.style.margin = '16px auto 0';
-          overlayInfoPhoto.style.display = 'block';
+          applyMysteryPhotoStyles(overlayInfoPhoto, partner.sex, '16px auto 0');
         }
 
         updateWaitTimer();
@@ -1895,6 +1934,7 @@
           title: '',
           name: partner.firstName || 'Unknown',
           photo: getPartnerPhotoSrc(partner),
+          partnerSex: partner.sex,
           descriptionText: partner.description || '',
           showCloseButton: true,
           dateObj: dateObj,
@@ -2283,6 +2323,7 @@
     function hideFindPersonPrompt() {
       stopFindPersonAlarm();
       if (silenceAlarmOverlay) silenceAlarmOverlay.style.display = 'none'; if (document.getElementById('findPersonCloseBtn')) document.getElementById('findPersonCloseBtn').style.display = '';
+      if (findPersonPhotoEl) findPersonPhotoEl.removeAttribute('data-real-src');
       activeFindPrompt = null;
       findPersonOverlay.style.display = 'none';
       if (findPersonTimerEl) {
@@ -2303,7 +2344,8 @@
 
     function renderFindPersonTimer(now) {
       if (!findPersonTimerEl) return;
-      if (!activeFindPrompt || now >= activeFindPrompt.endTsMs) {
+      const currentNow = typeof now === 'number' ? now : (typeof window._getNow === 'function' ? window._getNow() : Date.now());
+      if (!activeFindPrompt || currentNow >= activeFindPrompt.endTsMs) {
         findPersonTimerEl.textContent = '';
         findPersonTimerEl.style.display = 'none';
         return;
@@ -2313,7 +2355,7 @@
       const photoEl = document.getElementById('findPersonPhoto');
 
       const thresholdMs = getPreStartDateThresholdMs();
-      const alarmShouldBeActive = (activeFindPrompt.timestampMs - now) <= thresholdMs;
+      const alarmShouldBeActive = (activeFindPrompt.timestampMs - currentNow) <= thresholdMs;
       
       // Trigger alarm transition if we just crossed the start threshold
       if (alarmShouldBeActive && !activeFindPrompt._alarmStarted && !activeFindPrompt.found && !activeFindPrompt.couldNotFind) {
@@ -2328,8 +2370,8 @@
         if (silenceAlarmOverlay) silenceAlarmOverlay.style.display = 'none'; if (document.getElementById('findPersonCloseBtn')) document.getElementById('findPersonCloseBtn').style.display = '';
       }
       
-      if (now < activeFindPrompt.timestampMs) {
-        const startRemaining = activeFindPrompt.timestampMs - now;
+      if (currentNow < activeFindPrompt.timestampMs) {
+        const startRemaining = activeFindPrompt.timestampMs - currentNow;
         const m = Math.floor(startRemaining / 60000);
         const s = Math.floor((startRemaining % 60000) / 1000);
         
@@ -2350,20 +2392,13 @@
         foundPersonBtn.style.display = 'none';
         cantFindPersonBtn.style.display = 'none';
         
-        photoEl.src = getMysteryPhotoUrl();
-        photoEl.style.display = 'block';
-        photoEl.style.width = '232px'; // exactly half aspect ratio for 250px height
-        photoEl.style.height = '250px';
-        photoEl.style.maxWidth = '100%';
-        photoEl.style.objectFit = 'cover';
-        const sex = activeFindPrompt.partner?.sex || '';
-        photoEl.style.objectPosition = sex === 'Male' ? '0% center' : '100% center';
-        photoEl.style.margin = '0 auto 24px';
+        photoEl.removeAttribute('data-real-src');
+        applyMysteryPhotoStyles(photoEl, activeFindPrompt.partner?.sex, '0 auto 24px');
       } else {
         if (titleEl) titleEl.textContent = 'Find This Person';
         
         foundPersonBtn.style.display = 'inline-block';
-        if (isInFinalTwentyPercent(activeFindPrompt, now)) {
+        if (isInFinalTwentyPercent(activeFindPrompt, currentNow)) {
           cantFindPersonBtn.style.display = 'none';
         } else {
           cantFindPersonBtn.style.display = 'inline-block';
@@ -2371,21 +2406,30 @@
         
         // Restore real photo
         const realPhoto = getPartnerPhotoSrc(activeFindPrompt.partner);
+        const partnerSex = activeFindPrompt.partner?.sex;
         if (realPhoto) {
-          photoEl.src = realPhoto;
-          photoEl.onerror = () => { photoEl.src = getMysteryPhotoUrl(); };
-          photoEl.style.display = 'block';
-          photoEl.style.aspectRatio = '';
-          photoEl.style.maxWidth = '';
-          photoEl.style.height = '';
-          photoEl.style.objectFit = '';
-          photoEl.style.objectPosition = '';
+          if (photoEl.getAttribute('data-real-src') !== realPhoto) {
+            photoEl.setAttribute('data-real-src', realPhoto);
+            photoEl.src = realPhoto;
+          }
+          photoEl.onerror = () => {
+            applyMysteryPhotoStyles(photoEl, partnerSex, '0 auto 24px');
+          };
+          photoEl.onload = () => {
+            if (!photoEl.src.includes('unknown-man-and-woman.avif')) {
+              clearMysteryPhotoStyles(photoEl);
+            }
+          };
+          if (photoEl.complete && photoEl.naturalWidth > 0 && !photoEl.src.includes('unknown-man-and-woman.avif')) {
+            clearMysteryPhotoStyles(photoEl);
+          }
         } else {
           photoEl.removeAttribute('src');
+          photoEl.removeAttribute('data-real-src');
           photoEl.style.display = 'none';
         }
 
-        const remaining = Math.max(0, activeFindPrompt.endTsMs - now);
+        const remaining = Math.max(0, activeFindPrompt.endTsMs - currentNow);
         if (remaining <= 0) {
           findPersonTimerEl.textContent = '';
           findPersonTimerEl.style.display = 'none';
@@ -2399,8 +2443,9 @@
     }
 
     function isInFinalTwentyPercent(dateObj, now) {
+      const currentNow = typeof now === 'number' ? now : (typeof window._getNow === 'function' ? window._getNow() : Date.now());
       const totalMs = Math.max(1, dateObj.endTsMs - dateObj.timestampMs);
-      const remainingDateMs = Math.max(0, dateObj.endTsMs - now);
+      const remainingDateMs = Math.max(0, dateObj.endTsMs - currentNow);
       return remainingDateMs <= totalMs * (FIND_PERSON_DIALOG_AUTO_CLOSE_PERCENT_REMAINING / 100);
     }
 
@@ -2412,9 +2457,10 @@
 
     function renderCantFindButton(now) {
       if (!activeFindPrompt) return;
+      const currentNow = typeof now === 'number' ? now : (typeof window._getNow === 'function' ? window._getNow() : Date.now());
 
       // Hide the "I can't find them" option when the dialog enters its auto-close window.
-      if (isInFinalTwentyPercent(activeFindPrompt, now)) {
+      if (isInFinalTwentyPercent(activeFindPrompt, currentNow)) {
         cantFindPersonBtn.style.display = 'none';
         return;
       }
@@ -2465,7 +2511,7 @@
       const currentNow = typeof now === 'number' ? now : (typeof window._getNow === 'function' ? window._getNow() : Date.now());
 
       // If the date is already in its final 20%, do not show prompt (skip in FAST_MODE).
-      if (!force && !window.FAST_MODE && isInFinalTwentyPercent(dateObj, now)) {
+      if (!force && !window.FAST_MODE && isInFinalTwentyPercent(dateObj, currentNow)) {
         findPromptDismissedKeys.add(key);
         hideFindPersonPrompt();
         return;
@@ -2476,7 +2522,7 @@
         ...dateObj,
         key,
         isFirstDate: isFirst,
-        openedAtMs: typeof now === 'number' ? now : (typeof window._getNow === 'function' ? window._getNow() : Date.now()),
+        openedAtMs: currentNow,
       };
       if (dateObj.found) {
         foundPersonBtn.disabled = true;
@@ -2497,7 +2543,7 @@
       findPersonDescriptionEl.textContent = dateObj?.partner?.description || '';
 
       const thresholdMs = getPreStartDateThresholdMs();
-      const startRemaining = dateObj.timestampMs - now;
+      const startRemaining = dateObj.timestampMs - currentNow;
       const alarmShouldBeActive = startRemaining <= thresholdMs;
 
       if (!alarmShouldBeActive) {
@@ -2518,8 +2564,8 @@
         }
       }
 
-      renderCantFindButton(now);
-      renderFindPersonTimer(now);
+      renderCantFindButton(currentNow);
+      renderFindPersonTimer(currentNow);
       hideAlarmNotice();
       
       hideSubGroupDialog();
@@ -2968,7 +3014,11 @@
           const photoSrc = getPartnerPhotoSrc(d.partner);
           if (photoSrc) {
             img.src = photoSrc;
-            img.onerror = () => { img.src = getMysteryPhotoUrl(); };
+            const pSex = d.partner?.sex || (currentUser && currentUser.Sex === 'Male' ? 'Female' : (currentUser && currentUser.Sex === 'Female' ? 'Male' : ''));
+            img.onerror = () => {
+              img.src = getMysteryPhotoUrl();
+              img.className = 'mystery-face' + (pSex === 'Female' ? ' mystery-woman' : '');
+            };
           } else {
             img.style.visibility = 'hidden';
           }
