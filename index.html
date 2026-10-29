@@ -1,0 +1,4271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link id="pageFavicon" rel="icon" type="image/x-icon" href="favicon.ico">
+  <title>Ethical Speed Dating</title>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #0d0d0d;
+      color: #e0e0e0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .card {
+      background: #1a1a1a;
+      border: 1px solid #2e2e2e;
+      border-radius: 16px;
+      padding: 40px;
+      width: 100%;
+      max-width: 480px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0 0 24px;
+      font-size: 1.5rem;
+      font-weight: 600;
+      letter-spacing: -.5px;
+    }
+
+    h1 span {
+      color: #ff6b6b;
+    }
+
+    #name {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin: 0 0 16px;
+    }
+
+    #photo {
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: 12px;
+      border: 1px solid #333;
+      object-fit: cover;
+      margin: 0 auto 16px;
+      display: none;
+    }
+
+    #eventDate {
+      font-size: 0.85rem;
+      color: #aaa;
+      margin: 0 0 4px;
+      display: none;
+    }
+
+    #description {
+      font-size: 0.9rem;
+      color: #ccc;
+      margin: 0 0 16px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      display: none;
+    }
+
+    #eventTime {
+      font-size: 0.85rem;
+      color: #aaa;
+      margin: 0 0 4px;
+      display: none;
+    }
+
+    #eventDateTimeBr {
+      display: none;
+    }
+
+    #location {
+      font-size: 1rem;
+      color: #aaa;
+      margin: 0 0 24px;
+      display: none;
+    }
+
+    #checkinWarning {
+      /* color: #ff6b6b; */
+      font-weight: bold;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      margin: 0 0 12px;
+      display: none;
+    }
+
+    #checkinWarning #location {
+      margin-bottom: 0;
+    }
+
+    #confirmBtn {
+      width: 100%;
+      padding: 14px;
+      background: #ff6b6b;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: none;
+      margin-top: 20px;
+      white-space: pre-line;
+      line-height: 1.35;
+    }
+
+    #confirmBtn:hover:not(:disabled) {
+      background: #e55555;
+    }
+
+    #confirmBtn:disabled {
+      background: #3a3a3a;
+      color: #777;
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    #checkinCloseNote,
+    #confirmNote {
+      font-size: 0.8rem;
+      color: #aaa;
+      margin-top: 8px;
+      display: none;
+    }
+
+    #eventCountdown {
+      margin-top: 20px;
+      padding: 16px;
+      background: #111;
+      border: 1px solid #2e2e2e;
+      border-radius: 10px;
+      display: none;
+    }
+
+    #eventCountdown .countdown-label {
+      font-size: 0.75rem;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+    }
+
+    #eventCountdown .countdown-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #ff6b6b;
+      letter-spacing: 0.02em;
+    }
+
+    #message {
+      padding: 16px;
+      margin-bottom: 14px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    #message.success {
+      background: #0d2b1a;
+      border: 1px solid #1a5c36;
+      color: #4caf86;
+    }
+
+    #message.error {
+      background: #2b0d0d;
+      border: 1px solid #5c1a1a;
+      color: #f28b82;
+    }
+
+    .closed-warning-box {
+      background: #2b0d0d;
+      border: 1px solid #5c1a1a;
+      color: #f28b82;
+      padding: 16px;
+      margin-top: 16px;
+      margin-bottom: 14px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      text-align: left;
+    }
+
+    .closed-warning-box a {
+      overflow-wrap: anywhere;
+    }
+
+    .loading {
+      color: #999;
+      font-size: 0.9rem;
+    }
+
+    #datesSection {
+      margin-top: 28px;
+      display: none;
+      text-align: left;
+    }
+
+    .dates-callout {
+      margin: 18px 0 16px;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 107, 107, 0.45);
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(255, 107, 107, 0.14), rgba(255, 107, 107, 0.06));
+      color: #ffd7d7;
+      font-size: 0.88rem;
+      line-height: 1.45;
+    }
+
+    #datesSection h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #e0e0e0;
+      margin: 0 0 14px;
+      text-align: center;
+    }
+
+    .date-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: #111;
+      border: 1px solid #2e2e2e;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    .date-item.next-up {
+      border-color: #ff6b6b;
+    }
+
+    .date-item img {
+      width: 52px;
+      height: 52px;
+      border-radius: 8px;
+      object-fit: cover;
+      flex-shrink: 0;
+      background: #2a2a2a;
+    }
+
+    .date-item .date-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .date-item .date-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #e0e0e0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .date-item .date-name .checkin-waiting-note {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 400;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+
+    .date-item .date-desc {
+      font-size: 0.78rem;
+      color: #999;
+      margin-top: 2px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .date-item .date-time {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #ff6b6b;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    #datesSection.all-done .date-time {
+      display: none;
+    }
+
+    .date-item.past .date-time {
+      color: #555;
+    }
+
+    .date-item.past .date-name {
+      color: #666;
+    }
+
+    .date-item.mystery {
+      opacity: 0.75;
+    }
+
+    .btn-reset-cant-find {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 3px 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid #f28b82;
+      background: rgba(242, 139, 130, 0.15);
+      color: #f28b82;
+      transition: background 0.15s ease, opacity 0.15s ease;
+    }
+    .btn-reset-cant-find:hover:not(:disabled) {
+      background: rgba(242, 139, 130, 0.3);
+    }
+    .btn-reset-cant-find:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    img.mystery-face {
+      width: 52px;
+      height: 52px;
+      border-radius: 8px;
+      object-fit: cover;
+      object-position: 0% center;
+      /* default: man (left half) */
+      flex-shrink: 0;
+    }
+
+    img.mystery-face.mystery-woman {
+      object-position: 100% center;
+      /* woman (right half) */
+    }
+
+    .find-person-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.9);
+      padding: 20px;
+    }
+
+    .map-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.95);
+      padding: 20px;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .map-overlay img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      cursor: zoom-out;
+      transition: transform 0.2s ease-out;
+    }
+
+    .map-overlay-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #fff;
+      font-size: 2.2rem;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      transition: background 0.2s, transform 0.2s;
+      z-index: 10001;
+    }
+
+    .map-overlay-close:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: scale(1.05);
+    }
+
+    .map-overlay-close:active {
+      transform: scale(0.95);
+    }
+
+    .offline-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 100005;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(13, 13, 13, 0.94);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: 20px;
+    }
+
+    .offline-dialog {
+      position: relative;
+      width: 100%;
+      max-width: 440px;
+      border: 1px solid #3a3a3a;
+      border-radius: 16px;
+      background: #161616;
+      padding: 32px 24px;
+      text-align: center;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    .offline-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: rgba(255, 107, 107, 0.12);
+      color: #ff6b6b;
+      border: 1px solid rgba(255, 107, 107, 0.25);
+    }
+
+    .offline-title {
+      margin: 0 0 12px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #f2f2f2;
+    }
+
+    .offline-description {
+      font-size: 0.95rem;
+      color: #aaa;
+      line-height: 1.6;
+      margin: 0 0 20px;
+    }
+
+    .offline-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: #888;
+      margin-bottom: 20px;
+    }
+
+    .offline-status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ff6b6b;
+      animation: pulseDot 1.5s infinite;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    .shake {
+      animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
+    @keyframes shake {
+      10%, 90% { transform: translate3d(-1px, 0, 0); }
+      20%, 80% { transform: translate3d(2px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+      40%, 60% { transform: translate3d(4px, 0, 0); }
+    }
+
+    .offline-btn {
+      width: 100%;
+      padding: 12px 20px;
+      background: #ff6b6b;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, opacity 0.2s;
+    }
+
+    .offline-btn:hover:not(:disabled) {
+      background: #e55555;
+    }
+
+    .offline-btn:disabled {
+      background: #333;
+      color: #777;
+      cursor: not-allowed;
+    }
+
+    #subGroupDialog {
+      z-index: 9998;
+    }
+
+    /* Sticky footer layout for the Instructions dialog */
+    #subGroupDialog .find-person-dialog {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 0;
+    }
+
+    #alarmNotice .find-person-dialog {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 0;
+    }
+
+    .subgroup-scrollable {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      min-height: 0;
+      padding: 22px 22px 12px;
+    }
+
+    .subgroup-agree-footer {
+      flex: 0 0 auto;
+      padding: 12px 22px 18px;
+      border-top: 1px solid #2e2e2e;
+      text-align: center;
+    }
+
+    .subgroup-scroll-hint {
+      font-size: 0.85rem;
+      color: #888;
+      margin: 8px 0 0;
+    }
+
+    .subgroup-scrollable p {
+      margin: 0 0 10px;
+      line-height: 1.6;
+    }
+
+    .subgroup-scrollable ul,
+    .subgroup-scrollable ol {
+      margin: 0 0 12px;
+      padding-left: 20px;
+    }
+
+    .subgroup-scrollable li {
+      margin-bottom: 8px;
+      line-height: 1.6;
+    }
+
+    #subGroupDialogContent {
+      white-space: normal;
+    }
+
+    .find-person-dialog {
+      position: relative;
+      width: 100%;
+      max-width: 760px;
+      max-height: 100%;
+      overflow: auto;
+      border: 1px solid #2e2e2e;
+      border-radius: 16px;
+      background: #111;
+      padding: 22px;
+      text-align: center;
+    }
+
+    .find-person-title {
+      margin: 0;
+      font-size: 1.8rem;
+      color: #ff6b6b;
+      letter-spacing: 0.01em;
+    }
+
+    .find-person-name {
+      margin: 10px 0 0;
+      font-size: 1.4rem;
+      color: #f2f2f2;
+      font-weight: 700;
+    }
+
+    .find-person-photo {
+      margin-top: 16px;
+      width: 100%;
+      max-height: 56vh;
+      object-fit: contain;
+      border-radius: 12px;
+      background: #202020;
+      border: 1px solid #2f2f2f;
+    }
+
+    .find-person-timer {
+      margin-top: 10px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #ff6b6b;
+      text-align: center;
+    }
+
+    .find-person-description {
+      margin: 14px 0 0;
+      color: #d4d4d4;
+      line-height: 1.5;
+      font-size: 1rem;
+      white-space: pre-wrap;
+    }
+
+    .find-person-buttons {
+      margin-top: 18px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .find-person-btn {
+      border: none;
+      border-radius: 10px;
+      padding: 12px 14px;
+      min-width: 200px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: pre-line;
+    }
+
+    .find-person-btn.primary {
+      background: #2f7a46;
+      color: #fff;
+    }
+
+    .find-person-btn.primary:hover:not(:disabled) {
+      background: #28663b;
+    }
+
+    .find-person-btn.primary:disabled {
+      background: #1e4a2b;
+      color: #5a8a6a;
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    .find-person-btn.secondary {
+      background: #ff6b6b;
+      color: #fff;
+    }
+
+    .find-person-btn.secondary:hover:not(:disabled) {
+      background: #e85555;
+    }
+
+    .find-person-btn.secondary:disabled {
+      cursor: not-allowed;
+      background: #ff6b6b;
+      color: #fff;
+      opacity: 0.55;
+    }
+
+    .silence-alarm-overlay {
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      background: rgba(10, 10, 10, 0.88);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      cursor: pointer;
+      transition: opacity 0.2s ease, background 0.2s ease;
+      user-select: none;
+    }
+
+    .silence-alarm-overlay:hover {
+      background: rgba(18, 18, 18, 0.92);
+    }
+
+    .silence-alarm-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 24px;
+      border-radius: 14px;
+      background: rgba(255, 107, 107, 0.12);
+      border: 1px solid rgba(255, 107, 107, 0.4);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+      transition: transform 0.15s ease;
+    }
+
+    .silence-alarm-overlay:hover .silence-alarm-content {
+      transform: scale(1.04);
+    }
+
+    .silence-alarm-overlay:active .silence-alarm-content {
+      transform: scale(0.96);
+    }
+
+    .silence-alarm-icon {
+      color: #ff6b6b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .silence-alarm-text {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 0.02em;
+    }
+
+    .overlay-info-description a {
+      color: #fff;
+      font-weight: 700;
+      text-decoration: underline;
+      word-break: break-word;
+    }
+
+    .overlay-info-description.all-done {
+      background: linear-gradient(135deg, #244434 0%, #2f6b4b 100%);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      padding: 14px 16px;
+      color: #f6fff8;
+      text-align: left;
+    }
+
+    .overlay-info-close {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      border: none;
+      background: rgba(0, 0, 0, 0.25);
+      color: #fff;
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      line-height: 1;
+      font-weight: 700;
+      display: none;
+    }
+
+    .overlay-info-close:hover {
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    @media (max-width: 640px) {
+      .find-person-dialog {
+        padding: 16px;
+      }
+
+      #subGroupDialog .find-person-dialog {
+        padding: 0;
+      }
+
+      .subgroup-scrollable {
+        padding: 16px 16px 10px;
+      }
+
+      .subgroup-agree-footer {
+        padding: 10px 16px 14px;
+      }
+
+      .find-person-title {
+        font-size: 1.45rem;
+      }
+
+      .find-person-name {
+        font-size: 1.15rem;
+      }
+
+      .find-person-btn {
+        min-width: 100%;
+      }
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .spinner {
+      border: 4px solid rgba(255, 255, 255, 0.1);
+      border-left-color: #ff6b6b;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 16px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <h1>Ethical <span>Speed Dating</span></h1>
+    <div id="message" role="alert"></div>
+    <div id="content" style="display: none;">
+      <!--
+      <div id="name"></div>
+      <img id="photo" alt="User photo">
+      <div id="description"></div>
+      -->
+      <div id="eventDate"></div>
+      <div id="eventTime"></div>
+      <br id="eventDateTimeBr"/>
+      <div id="checkinWarning" style="font-weight: bold; margin-bottom: 12px; display: none;">
+        <div id="checkinWarningBeforeLocation" style="display:none;">
+          Do not check in before you have found:<br/><br/>
+        </div>
+        <div id="location" style="font-weight:bold; color:#ff6b6b;"></div>
+        <div id="checkinWarningAfterLocation" style="display:none;">
+          <br/>If you check in before you have found the exact location, your dates will run without you and your dates will not be able to find you!
+        </div>
+      </div>
+      <button id="confirmBtn">Confirm Attendance</button>
+      <div id="confirmNote"></div>
+      <div id="checkinCloseNote"></div>
+      <br>
+      <div id="datesCallout" class="dates-callout" style="display: none;">
+        <p class="meeting-point-line" style="display:none;"><b>Meeting point: <span class="meeting-point-text"></span></b></p>
+        <p><small>You have been allocated to Sub Group 2.</small></p>
+        <p>When the event starts, please:</p>
+        <ol>
+          <!-- <li>
+            Stroll leisurely <b>as a group</b> around the route shown:
+            <img id="mapImg" src="map.png" alt="Walking route"
+            style="display: block; width: 100%; max-width: 520px; margin: 8px auto; cursor: zoom-in;">
+          </li> -->
+          <li>Stroll slowly, chatting individually with your current date within your group as indicated</li>
+          <li><b>As soon as you hear the next date alarm please return to the start point to meet your next date</b></li>
+          <li>Each date maybe a different length
+          <br/><small>This keeps the event running smoothly for everyone when people check in late or do not arrive and minimises everyone's break lengths</small></li>
+          <li><b>Keep this app open at all times on your mobile - the alarm will NOT sound if this screen is in the background</b></li>
+          <li>If you cannot find your date, after searching for them, please click "I can't find them"</li>
+          <li>If too many of your dates report they can't find you, the system will assume you have left and ALL your future dates will be cancelled
+          <br/><small>This is to reduce waiting times for others if people leave the event early</small></li>
+          <li>After the event you'll be able to select who you were interested in and mutual matches will be introduced immediately via email - so please avoid awkwardness by not asking for contact details!</li>
+          <li>To ensure the event runs smoothly for everyone please:<b>
+            <br/>* Return to the start location before each date ends 
+            <br/>* Start each date on time 
+            <br/>* Do not leave early
+          </b></li>
+        </ol>
+      </div>
+      <div id="eventCountdown">
+        <div class="countdown-label">Event starts in</div>
+        <div class="countdown-value" id="eventCountdownValue"></div>
+      </div>
+      <div id="datesSection">
+        <h2 id="datesSectionTitle">Your Dates</h2>
+        <!-- <p id="datesSectionSubtext" style="display:none; margin:0 0 16px; font-size:0.92rem; color:#aaa; line-height:1.5;"></p> -->
+        <div id="datesList"></div>
+      </div>
+    </div>
+    <div class="loading">Loading...</div>
+  </div>
+
+  <div id="findPersonOverlay" class="find-person-overlay" role="dialog" aria-modal="true"
+    aria-labelledby="findPersonTitle">
+    <div class="find-person-dialog">
+      <button id="findPersonCloseBtn" class="map-overlay-close" type="button" aria-label="Close dialog" style="top: 10px; right: 10px; width: 36px; height: 36px; font-size: 1.8rem;">&times;</button>
+      <h2 id="findPersonTitle" class="find-person-title">Find This Person</h2>
+      <div id="findPersonName" class="find-person-name"></div>
+      <img id="findPersonPhoto" class="find-person-photo" alt="Find this person photo">
+      <div id="findPersonTimer" class="find-person-timer" style="display: none;"></div>
+      <div id="findPersonDescription" class="find-person-description"></div>
+      <div class="find-person-buttons">
+        <button id="foundPersonBtn" class="find-person-btn primary" type="button">Found them</button>
+        <button id="cantFindPersonBtn" class="find-person-btn secondary" type="button" disabled></button>
+      </div>
+      <div id="silenceAlarmOverlay" class="silence-alarm-overlay" role="button" tabindex="0" aria-label="Silence Alarm" style="display: none;">
+        <div class="silence-alarm-content">
+          <div class="silence-alarm-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <line x1="23" y1="9" x2="17" y2="15"></line>
+              <line x1="17" y1="9" x2="23" y2="15"></line>
+            </svg>
+          </div>
+          <div class="silence-alarm-text">Silence Alarm</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="overlayInfo" class="find-person-overlay" role="dialog" aria-modal="true" aria-labelledby="overlayInfoTitle">
+    <div class="find-person-dialog">
+      <button id="overlayInfoCloseBtn" class="overlay-info-close" type="button" aria-label="Close overlay">x</button>
+      <h2 id="overlayInfoTitle" class="find-person-title"></h2>
+      <div id="overlayInfoName" class="find-person-name"></div>
+      <img id="overlayInfoPhoto" class="find-person-photo" alt="Profile photo">
+      <div id="overlayInfoTimer" class="find-person-timer" style="display: none;"></div>
+      <div id="overlayInfoDescription" class="find-person-description overlay-info-description"></div>
+    </div>
+  </div>
+
+  <div id="confirmAttendanceDialog" class="find-person-overlay" role="dialog" aria-modal="true"
+    aria-labelledby="confirmAttendanceTitle">
+    <div class="find-person-dialog">
+      <button id="confirmAttendanceCloseBtn" class="overlay-info-close" type="button" aria-label="Close"
+        style="display:inline-flex;">&#x2715;</button>
+      <h2 id="confirmAttendanceTitle" class="find-person-title" style="color:#4caf86;">Confirm Attendance</h2>
+      <div class="find-person-description" style="margin-top:16px;font-size:1rem;color:#ccc;line-height:1.6;white-space:normal;">
+        On the day, your event is run from your phone using this same link<br><br>
+        <b style="color:#ff6b6b;">You must open this link when you arrive at the venue to find the exact meeting point and to see who you are dating and when</b><br><br>
+        Please also ensure your phone is <strong style="color:#e0e0e0;">fully charged</strong>
+        <label style="display:flex;align-items:flex-start;gap:10px;margin:16px 0 16px 0;text-align:left;cursor:pointer;color:#fff;font-size:0.95rem;line-height:1.4;">
+          <input type="checkbox" id="confirmAttendanceCheckbox" style="margin-top:3px;cursor:pointer;width:18px;height:18px;accent-color:#4caf86;flex-shrink:0;">
+          <span>I will open this link at the event on my fully charged phone</span>
+        </label>
+      </div>
+      <button id="confirmAttendanceModalBtn" class="find-person-btn secondary" type="button" style="width:100%;margin-top:8px;" disabled>Confirm Attendance</button>
+    </div>
+  </div>
+
+  <div id="subGroupDialog" class="find-person-overlay" role="dialog" aria-modal="true"
+    aria-labelledby="subGroupDialogTitle">
+    <div class="find-person-dialog">
+      <div id="subGroupScrollable" class="subgroup-scrollable">
+        <h2 id="subGroupDialogTitle" class="find-person-title" style="color:#4caf86;">Instructions:<br/>scroll down to
+          agree and see your dates</h2>
+        <div id="subGroupDialogContent" class="find-person-description"
+          style="margin-top:12px;font-size:1rem;color:#ccc;line-height:1.7;"></div>
+      </div>
+      <div class="subgroup-agree-footer">
+        <button id="subGroupAgreeBtn" class="find-person-btn secondary" type="button" disabled>I agree, show me my
+          dates</button>
+        <p id="subGroupScrollHint" class="subgroup-scroll-hint">Scroll to the bottom of the instructions above
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <audio id="alarmAudio" src="alarm.wav" preload="auto" playsinline style="display:none;"></audio>
+  <audio id="silentBgAudio" loop playsinline preload="auto" src="data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA" style="display:none;"></audio>
+
+  <div id="alarmNotice" class="find-person-overlay" role="dialog" aria-modal="true">
+    <div class="find-person-dialog">
+      <div id="alarmNoticeScrollable" class="subgroup-scrollable">
+        <h2 class="find-person-title" style="color:#4caf86;">Turn up your sound</h2>
+        <div id="alarmNoticeInstructions"></div>
+        <div class="find-person-description" style="margin-top:12px;font-size:1rem;color:#ccc;line-height:1.7;">An alarm will sound before each date
+          Please return to the start as soon as you hear the alarm
+          <b style="color:#ff6b6b;">Keep this app open: the alarm will sound when your next date starts only if this screen is open and not in the background</b>
+          <small></small>If too many of your dates report they can't find you, the system will assume you have left and ALL your future dates will be cancelled
+          <small>This is done to reduce waiting times for others when people actually leave early</small>
+        </div>
+      </div>
+      <div class="subgroup-agree-footer">
+        <p id="alarmNoticeScrollHint" class="subgroup-scroll-hint">Scroll to the bottom of the instructions above</p>
+        <div class="find-person-buttons" style="flex-direction:column;gap:10px;margin-top:0;">
+          <button id="alarmTestBtn" class="find-person-btn primary" type="button" disabled>Test next date alarm</button>
+          <button id="alarmConfirmBtn" class="find-person-btn primary" type="button" style="display:none;" disabled>I can hear the next date alarm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Choose Matches Dialog -->
+  <div id="chooseMatchesDialog" class="find-person-overlay" role="dialog" aria-modal="true"
+    aria-labelledby="chooseMatchesDialogTitle" style="display: none;">
+    <div class="find-person-dialog">
+      <h2 id="chooseMatchesDialogTitle" class="find-person-title" style="color:#ff6b6b;">Choose your Matches</h2>
+      <div class="find-person-description" style="margin-top:12px;font-size:1rem;color:#ccc;line-height:1.7;">
+        Select the people you are interested in.<br /><br />Choose carefully: once you select someone you are not allowed to unselect them.<br /><br />As soon as you get a mutual match, we'll immediately introduce you both by email.
+      </div>
+      <div class="find-person-buttons" style="margin-top:20px;">
+        <button id="chooseMatchesCloseBtn" class="find-person-btn primary" type="button">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Saving Overlay -->
+  <div id="savingOverlay" class="find-person-overlay" role="dialog" aria-modal="true"
+    style="display: none; justify-content: center; align-items: center; background: rgba(0, 0, 0, 0.85); z-index: 10000;">
+    <div class="find-person-dialog" style="text-align: center; max-width: 280px; padding: 24px; pointer-events: none;">
+      <div class="spinner"></div>
+      <div style="font-size: 1.1rem; color: #e0e0e0; font-weight: 600;">Checking for mutual match...</div>
+    </div>
+  </div>
+
+  <!-- Fullscreen Map Overlay -->
+  <div id="mapOverlay" class="map-overlay" role="dialog" aria-modal="true" aria-label="Fullscreen map view">
+    <button id="mapOverlayCloseBtn" class="map-overlay-close" type="button" aria-label="Close map">&times;</button>
+    <img id="mapOverlayImage" src="map.png" alt="Map walking route">
+  </div>
+
+  <!-- Fullscreen Offline Overlay -->
+  <div id="offlineOverlay" class="offline-overlay" role="alertdialog" aria-modal="true" aria-labelledby="offlineTitle" aria-describedby="offlineDesc">
+    <div class="offline-dialog">
+      <div class="offline-icon" aria-hidden="true">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="1" y1="1" x2="23" y2="23"></line>
+          <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path>
+          <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path>
+          <path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path>
+          <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path>
+          <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+          <line x1="12" y1="20" x2="12.01" y2="20"></line>
+        </svg>
+      </div>
+      <h2 id="offlineTitle" class="offline-title">No Internet Connection</h2>
+      <p id="offlineDesc" class="offline-description">
+        You are currently offline. Please check your mobile data or search for any free Wi-Fi.<br/>
+        The app will automatically resume once your connection is restored.
+      </p>
+      <div class="offline-status">
+        <span class="offline-status-dot"></span>
+        <span id="offlineStatusText">Waiting for connection...</span>
+      </div>
+      <button id="offlineRetryBtn" class="offline-btn" type="button">Check Connection</button>
+    </div>
+  </div>
+
+  <!-- Fullscreen Not Mutual Match Overlay -->
+  <div id="notMutualMatchOverlay" class="offline-overlay" role="alertdialog" aria-modal="true" aria-labelledby="notMutualTitle" aria-describedby="notMutualDesc" style="display: none; z-index: 10001; justify-content: center; align-items: center; background: rgba(0,0,0,0.85); position: fixed; top: 0; left: 0; right: 0; bottom: 0;">
+    <div class="offline-dialog" style="padding-bottom: 24px; position: relative;">
+      <button id="notMutualCloseBtn" class="map-overlay-close" type="button" aria-label="Close" style="color: #666; background: none; font-size: 24px; position: absolute; top: 12px; right: 12px;">&times;</button>
+      <h2 id="notMutualTitle" class="offline-title" style="margin-top: 16px;">Not a mutual match... yet!</h2>
+      <p id="notMutualDesc" class="offline-description" style="text-align: left; margin: 16px 0;">
+        If your date has not yet entered their interests, we'll notify you immediately by email if you get a mutual match.<br/><br/>
+        It takes most attendees 2-4 events to receive mutual matches.<br/><br/>
+        Feel free to book into an upcoming event before it sells out here:<br/>
+        <a id="notMutualSignupLink" href="#" target="_blank" style="color: #ff6b6b; text-decoration: underline; word-break: break-all;"></a>
+      </p>
+      <button id="notMutualOkBtn" class="primary-btn" style="margin-top: 24px; width: 100%;">OK, got it</button>
+    </div>
+  </div>
+
+  <!-- Load shared constants before main script -->
+  <script src="constants.js?v=20261021"></script>
+
+  <script>
+    // Time hook: tests can override window._getNow via page.addInitScript before page scripts run.
+    // In production it is frozen to Date.now() and cannot be changed from the browser console.
+    if (typeof window._getNow !== 'function') {
+      window._getNow = function () { return Date.now(); };
+      Object.defineProperty(window, '_getNow', { writable: false, configurable: false });
+    }
+
+    // ── Multi-backend candidate URLs & failover support ──────────────────────────
+    const PRODUCTION_BACKEND_URLS = [
+      'https://ethical-speed-dating.onrender.com',
+      'https://esd-vops.onrender.com'
+    ];
+
+    function getCandidateBackendUrls() {
+      if (typeof window.ESD_BACKEND_URL !== 'undefined') {
+        return Array.isArray(window.ESD_BACKEND_URL)
+          ? [...window.ESD_BACKEND_URL]
+          : [window.ESD_BACKEND_URL];
+      }
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        return [''];
+      }
+      return Math.random() < 0.5
+        ? [...PRODUCTION_BACKEND_URLS]
+        : [PRODUCTION_BACKEND_URLS[1], PRODUCTION_BACKEND_URLS[0]];
+    }
+
+    let _activeBackendUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+      ? ''
+      : null;
+
+    function getActiveBackendUrl() {
+      if (_activeBackendUrl !== null) return _activeBackendUrl;
+      const candidates = getCandidateBackendUrls();
+      return candidates[0] || '';
+    }
+
+    function setActiveBackendUrl(url) {
+      _activeBackendUrl = url || '';
+      applyBackendAssets(_activeBackendUrl);
+    }
+
+    function applyBackendAssets(backendUrl) {
+      const base = backendUrl ? backendUrl : '';
+      const fav = document.getElementById('pageFavicon');
+      if (fav && base) fav.href = base + '/favicon.ico';
+      const audio = document.getElementById('alarmAudio');
+      if (audio && base) audio.src = base + '/alarm.wav';
+      const mapOverlayImage = document.getElementById('mapOverlayImage');
+      if (mapOverlayImage && base) mapOverlayImage.src = base + '/map.png';
+    }
+
+    function getMysteryPhotoUrl() {
+      const backend = getActiveBackendUrl();
+      return (backend ? backend : '') + '/unknown-man-and-woman.avif';
+    }
+
+    async function ensureConstantsLoaded() {
+      if (typeof window.ATTENDANCE_CONFIRMATION_EXPIRES !== 'undefined') {
+        if (_activeBackendUrl === null) {
+          _activeBackendUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+            ? ''
+            : getCandidateBackendUrls()[0];
+        }
+        applyBackendAssets(_activeBackendUrl);
+        return;
+      }
+
+      const candidates = getCandidateBackendUrls();
+      for (let i = 0; i < candidates.length; i++) {
+        const backend = candidates[i];
+        const scriptUrl = (backend ? backend : '') + '/constants.js?v=20261021';
+        try {
+          await new Promise((resolve, reject) => {
+            const s = document.createElement('script');
+            s.src = scriptUrl;
+            s.onload = () => resolve();
+            s.onerror = (err) => reject(err);
+            document.head.appendChild(s);
+          });
+          if (typeof window.ATTENDANCE_CONFIRMATION_EXPIRES !== 'undefined') {
+            setActiveBackendUrl(backend);
+            return;
+          }
+        } catch (err) {
+          console.warn(`Failed to load constants.js from ${backend || 'local'}, falling over to next server...`);
+        }
+      }
+      throw new Error('Failed to load application constants from all backend servers');
+    }
+
+    async function apiFetch(endpoint, options = {}) {
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        return fetch(endpoint, options);
+      }
+
+      const candidates = getCandidateBackendUrls();
+      const currentActive = getActiveBackendUrl();
+      const orderedUrls = [
+        currentActive,
+        ...candidates.filter(u => u !== currentActive)
+      ];
+
+      let lastError = null;
+      let lastResponse = null;
+
+      for (let i = 0; i < orderedUrls.length; i++) {
+        const backend = orderedUrls[i];
+        const url = (backend ? backend : '') + endpoint;
+        try {
+          const res = await fetch(url, options);
+          if (res.status < 500 && res.status !== 429 && res.status !== 404) {
+            setActiveBackendUrl(backend);
+            return res;
+          }
+          console.warn(`Backend ${backend || 'local'} returned HTTP ${res.status} for ${endpoint}. Falling back to next server...`);
+          lastResponse = res;
+        } catch (err) {
+          console.warn(`Fetch to backend ${backend || 'local'} failed for ${endpoint}:`, err);
+          lastError = err;
+        }
+      }
+
+      if (lastResponse) return lastResponse;
+      throw (lastError || new Error(`All backend servers failed for ${endpoint}`));
+    }
+
+    // Get UUID from query params
+    const params = new URLSearchParams(window.location.search);
+    const uuid = params.get('uuid');
+
+    const msg = document.getElementById('message');
+    const content = document.getElementById('content');
+    const loading = document.querySelector('.loading');
+    const photo = document.getElementById('photo');
+    const name = document.getElementById('name');
+    const eventTimeEl = document.getElementById('eventTime');
+    const eventDateEl = document.getElementById('eventDate');
+    const locationEl = document.getElementById('location');
+    const checkinWarning = document.getElementById('checkinWarning');
+    const checkinWarningBeforeLocation = document.getElementById('checkinWarningBeforeLocation');
+    const checkinWarningAfterLocation = document.getElementById('checkinWarningAfterLocation');
+    const descriptionEl = document.getElementById('description');
+    const confirmBtn = document.getElementById('confirmBtn');
+    const datesCallout = document.getElementById('datesCallout');
+    const alarmNotice = document.getElementById('alarmNotice');
+    const alarmNoticeScrollable = document.getElementById('alarmNoticeScrollable');
+    const alarmNoticeInstructions = document.getElementById('alarmNoticeInstructions');
+    const alarmNoticeScrollHint = document.getElementById('alarmNoticeScrollHint');
+    const alarmTestBtn = document.getElementById('alarmTestBtn');
+    const alarmConfirmBtn = document.getElementById('alarmConfirmBtn');
+    let _alarmNoticeScrolledToBottom = false;
+    let _alarmTestPlayed = false;
+    const confirmAttendanceDialog = document.getElementById('confirmAttendanceDialog');
+    const confirmAttendanceCloseBtn = document.getElementById('confirmAttendanceCloseBtn');
+    const confirmAttendanceCheckbox = document.getElementById('confirmAttendanceCheckbox');
+    const confirmAttendanceModalBtn = document.getElementById('confirmAttendanceModalBtn');
+    const subGroupDialog = document.getElementById('subGroupDialog');
+    const subGroupDialogContent = document.getElementById('subGroupDialogContent');
+    const subGroupScrollable = document.getElementById('subGroupScrollable');
+    const subGroupScrollHint = document.getElementById('subGroupScrollHint');
+    const subGroupAgreeBtn = document.getElementById('subGroupAgreeBtn');
+    const findPersonOverlay = document.getElementById('findPersonOverlay');
+    const findPersonNameEl = document.getElementById('findPersonName');
+    const findPersonPhotoEl = document.getElementById('findPersonPhoto');
+    const findPersonTimerEl = document.getElementById('findPersonTimer');
+    const findPersonDescriptionEl = document.getElementById('findPersonDescription');
+    const foundPersonBtn = document.getElementById('foundPersonBtn');
+    const cantFindPersonBtn = document.getElementById('cantFindPersonBtn');
+    const silenceAlarmOverlay = document.getElementById('silenceAlarmOverlay');
+    const overlayInfo = document.getElementById('overlayInfo');
+    const overlayInfoTitle = document.getElementById('overlayInfoTitle');
+    const overlayInfoName = document.getElementById('overlayInfoName');
+    const overlayInfoPhoto = document.getElementById('overlayInfoPhoto');
+    const overlayInfoTimerEl = document.getElementById('overlayInfoTimer');
+    const overlayInfoDescription = document.getElementById('overlayInfoDescription');
+    const overlayInfoCloseBtn = document.getElementById('overlayInfoCloseBtn');
+    const mapOverlay = document.getElementById('mapOverlay');
+    const mapOverlayCloseBtn = document.getElementById('mapOverlayCloseBtn');
+    const chooseMatchesDialog = document.getElementById('chooseMatchesDialog');
+    const chooseMatchesCloseBtn = document.getElementById('chooseMatchesCloseBtn');
+
+    function showStatus(kind, text) {
+      msg.className = kind;
+      msg.textContent = text;
+      msg.style.display = 'block';
+    }
+
+    const _isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+    const _isAndroid = /Android/.test(navigator.userAgent);
+
+    let _isAdmin = false;
+    async function checkAdminAuth() {
+      if (typeof window._isAdminOverride === 'boolean') {
+        _isAdmin = window._isAdminOverride;
+        return;
+      }
+      try {
+        const res = await apiFetch('/api/admin/auth-status');
+        if (res.ok) {
+          const data = await res.json();
+          _isAdmin = !!data.isAdmin;
+        }
+      } catch (_) {
+        _isAdmin = false;
+      }
+    }
+
+    function showAlarmNotice() {
+      if (_datesFinished || typeof _allDatesPast !== 'undefined' && _allDatesPast || window.__disableAlarmNotice === true) return;
+      _alarmNoticeShownOnce = true;
+      let html;
+      if (_isIOS) {
+        html = `<ol style="margin:10px 0 20px;padding-left:22px;color:#ccc;font-size:0.95rem;line-height:1.9;">
+          <li>Go to <strong style="color:#e0e0e0;">Settings &gt; Sounds &amp; Haptics</strong> and turn off <strong style="color:#e0e0e0;">Silent Mode</strong></li>
+          <li>Go to <strong style="color:#e0e0e0;">Settings &gt; Display &amp; Brightness &gt; Auto&#x2011;Lock</strong> and set it to <strong style="color:#e0e0e0;">Never</strong> so your screen stays on during the event</li>
+          <li>Turn your volume all the way up, then press <strong style="color:#e0e0e0;">Test next date alarm</strong> below</li>
+        </ol>`;
+      } else if (_isAndroid) {
+        html = `<ol style="margin:10px 0 20px;padding-left:22px;color:#ccc;font-size:0.95rem;line-height:1.9;">
+          <li>Make sure your phone is <strong style="color:#e0e0e0;">not on silent or vibrate&#x2011;only</strong> &mdash; the alarm uses media volume</li>
+          <li>Turn your <strong style="color:#e0e0e0;">volume all the way up</strong></li>
+          <li>Press <strong style="color:#e0e0e0;">Test next date alarm</strong> below to confirm you can hear it</li>
+        </ol>`;
+      } else {
+        html = `<p style="margin:10px 0 20px;color:#ccc;font-size:0.95rem;line-height:1.6;">Turn your volume up so you can hear the alarm when your next date starts.</p>`;
+      }
+      alarmNoticeInstructions.innerHTML = html;
+      _alarmNoticeScrolledToBottom = false;
+      _alarmTestPlayed = false;
+      alarmTestBtn.disabled = true;
+      alarmConfirmBtn.disabled = true;
+      alarmConfirmBtn.style.display = 'none';
+      alarmNoticeScrollHint.style.display = 'block';
+      alarmNoticeScrollable.removeEventListener('scroll', onAlarmNoticeScroll);
+      alarmNoticeScrollable.addEventListener('scroll', onAlarmNoticeScroll);
+      alarmNotice.style.display = 'flex';
+      requestAnimationFrame(() => {
+        if (alarmNoticeScrollable.scrollHeight <= alarmNoticeScrollable.clientHeight + 2) {
+          _alarmNoticeScrolledToBottom = true;
+          updateAlarmNoticeActions();
+        }
+      });
+    }
+
+    function updateAlarmNoticeActions() {
+      alarmTestBtn.disabled = !_alarmNoticeScrolledToBottom;
+      alarmConfirmBtn.disabled = !_alarmNoticeScrolledToBottom || !_alarmTestPlayed;
+      alarmNoticeScrollHint.style.display = _alarmNoticeScrolledToBottom ? 'none' : 'block';
+    }
+
+    function onAlarmNoticeScroll() {
+      if (_alarmNoticeScrolledToBottom) return;
+      if (alarmNoticeScrollable.scrollHeight - alarmNoticeScrollable.scrollTop <= alarmNoticeScrollable.clientHeight + 2) {
+        _alarmNoticeScrolledToBottom = true;
+        updateAlarmNoticeActions();
+      }
+    }
+
+    function hideAlarmNotice() {
+      alarmNotice.style.display = 'none';
+      alarmNoticeScrollable.removeEventListener('scroll', onAlarmNoticeScroll);
+    }
+
+    alarmTestBtn.addEventListener('click', () => {
+      if (alarmTestBtn.disabled) return;
+      initBackgroundAudio();
+      playAlarmChime();
+      const alarmEl = document.getElementById('alarmAudio');
+      if (alarmEl) {
+        try {
+          alarmEl.currentTime = 0;
+          alarmEl.volume = 1.0;
+          alarmEl.play().catch(() => {});
+        } catch (e) {}
+      }
+      _alarmTestPlayed = true;
+      alarmConfirmBtn.style.display = 'block';
+      updateAlarmNoticeActions();
+      alarmConfirmBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+
+    alarmConfirmBtn.addEventListener('click', () => {
+      if (alarmConfirmBtn.disabled) return;
+      const alarmEl = document.getElementById('alarmAudio');
+      if (alarmEl) {
+        try {
+          alarmEl.pause();
+          alarmEl.currentTime = 0;
+        } catch (e) {}
+      }
+      hideAlarmNotice();
+    });
+
+    let _confirmAttendanceInFlight = false;
+
+    function showConfirmAttendanceDialog() {
+      if (confirmationClosed) return;
+      confirmAttendanceCheckbox.checked = false;
+      confirmAttendanceCheckbox.disabled = false;
+      confirmAttendanceModalBtn.disabled = true;
+      confirmAttendanceModalBtn.textContent = (confirmBtn.textContent && confirmBtn.textContent.startsWith('Confirm Attendance'))
+        ? confirmBtn.textContent
+        : 'Confirm Attendance';
+      confirmAttendanceDialog.style.display = 'flex';
+    }
+
+    function hideConfirmAttendanceDialog() {
+      confirmAttendanceDialog.style.display = 'none';
+    }
+
+    window.showConfirmAttendanceDialog = showConfirmAttendanceDialog;
+    window.hideConfirmAttendanceDialog = hideConfirmAttendanceDialog;
+
+    confirmAttendanceCloseBtn.addEventListener('click', () => {
+      if (_confirmAttendanceInFlight) return;
+      hideConfirmAttendanceDialog();
+    });
+
+    confirmAttendanceCheckbox.addEventListener('change', () => {
+      if (_confirmAttendanceInFlight) return;
+      confirmAttendanceModalBtn.disabled = !confirmAttendanceCheckbox.checked;
+    });
+
+    confirmAttendanceModalBtn.addEventListener('click', async () => {
+      if (confirmAttendanceModalBtn.disabled) return;
+      if (confirmationClosed) {
+        hideConfirmAttendanceDialog();
+        return;
+      }
+      _confirmAttendanceInFlight = true;
+      confirmAttendanceModalBtn.disabled = true;
+      confirmAttendanceCheckbox.disabled = true;
+      confirmAttendanceModalBtn.textContent = 'Please wait...';
+      try {
+        const res = await apiFetch(`/api/users/${uuid}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: '1_TICKET_CONFIRMED' }),
+        });
+        if (!res.ok) {
+          let errMsg = 'Failed to confirm attendance';
+          try {
+            const d = await res.json();
+            errMsg = d.error || errMsg;
+          } catch (_) { /* server returned non-JSON (e.g. stale server without PATCH route) */ }
+          throw new Error(errMsg);
+        }
+        _confirmAttendanceInFlight = false;
+        if (confirmCountdownInterval) { clearInterval(confirmCountdownInterval); confirmCountdownInterval = null; }
+        confirmNote.style.display = 'none';
+        await loadUser();
+        hideConfirmAttendanceDialog();
+      } catch (err) {
+        _confirmAttendanceInFlight = false;
+        confirmAttendanceCheckbox.disabled = false;
+        confirmAttendanceModalBtn.disabled = !confirmAttendanceCheckbox.checked;
+        confirmAttendanceModalBtn.textContent = (confirmBtn.textContent && confirmBtn.textContent.startsWith('Confirm Attendance'))
+          ? confirmBtn.textContent
+          : 'Confirm Attendance';
+        showStatus('error', `\u2717 ${err.message}`);
+      }
+    });
+    chooseMatchesCloseBtn.addEventListener('click', () => { chooseMatchesDialog.style.display = 'none'; });
+
+    let currentUser = null;
+    let countdownInterval = null;
+    let eventCountdownInterval = null;
+    let confirmCountdownInterval = null;
+    let confirmationClosed = false;
+    let arrivedMode = false;
+    let _pendingCheckin = false;
+    let _checkinInFlight = false;
+    let checkinCloseTime = null;  // set by showCheckinCountdown; read by showSubGroupDialog
+    let subGroupDialogShown = false;
+    let subGroupDialogPending = false;
+    let subGroupDialogRetryTimer = null;
+    let subGroupAgreeCountdownInterval = null;
+    let _chooseMatchesDialogShown = false;
+
+    function isMatchingAvailable() {
+      if (!currentUser) return false;
+      return typeof currentUser.Status === 'string' && currentUser.Status.startsWith('3_');
+    }
+    window.isMatchingAvailable = isMatchingAvailable;
+
+    const SUB_GROUP_CALL_OUT_HTML = datesCallout.innerHTML;
+    let _subGroupScrolledToBottom = false;  // true once user has scrolled to end of Instructions
+    let _updateAgreeCountdown = null;       // ref to current updateAgreeCountdown closure
+
+    function setDatesCalloutVisible(visible) {
+      if (_datesFinished || isMatchingAvailable()) {
+        datesCallout.style.display = 'none';
+        return;
+      }
+      datesCallout.style.display = visible ? 'block' : 'none';
+    }
+
+    function isUserCheckedIn() {
+      return !!(currentUser && (currentUser.Status === '2_ARRIVED' || (typeof currentUser.Status === 'string' && (currentUser.Status.startsWith('2_') || currentUser.Status.startsWith('3_')))));
+    }
+
+    function setEventDateTimeVisible(visible) {
+      const isCheckedIn = isUserCheckedIn();
+      const displayStyle = (visible && !isMatchingAvailable() && !isCheckedIn) ? 'block' : 'none';
+      eventDateEl.style.display = displayStyle;
+      eventTimeEl.style.display = displayStyle;
+      const brEl = document.getElementById('eventDateTimeBr');
+      if (brEl) brEl.style.display = displayStyle;
+    }
+
+    function clearSubGroupDialogTimers() {
+      if (subGroupDialogRetryTimer) {
+        clearTimeout(subGroupDialogRetryTimer);
+        subGroupDialogRetryTimer = null;
+      }
+      if (subGroupAgreeCountdownInterval) {
+        clearInterval(subGroupAgreeCountdownInterval);
+        subGroupAgreeCountdownInterval = null;
+      }
+    }
+
+    // Fired on every scroll of the Instructions scrollable area.
+    // Enables the agree button once the user has reached the bottom.
+    function _onSubGroupScroll() {
+      if (_subGroupScrolledToBottom) return;
+      const el = subGroupScrollable;
+      if (el.scrollHeight - el.scrollTop <= el.clientHeight + 2) {
+        _subGroupScrolledToBottom = true;
+        if (_updateAgreeCountdown) _updateAgreeCountdown();
+      }
+    }
+
+    function showSubGroupDialog() {
+      // Don't show Instructions until the first schedule poll has resolved: we need to know
+      // whether the user is All Done before committing to showing the dialog.
+      if (!_firstSchedulePollDone) return;
+      if (_allDatesPast || _datesFinished) return;
+      if (subGroupDialogShown) return;
+      if (_datesFinished) return;
+      subGroupDialogShown = true;
+      subGroupDialogPending = false;
+      _subGroupScrolledToBottom = false;  // reset; re-enabled by scroll or auto-detect
+
+      subGroupDialogContent.innerHTML = SUB_GROUP_CALL_OUT_HTML;
+
+      // Populate meeting point from current user's location
+      if (currentUser && currentUser.Location) {
+        const mpLine = subGroupDialogContent.querySelector('.meeting-point-line');
+        const mpText = subGroupDialogContent.querySelector('.meeting-point-text');
+        if (mpLine && mpText) {
+          mpText.textContent = currentUser.Location;
+          mpLine.style.display = '';
+        }
+      }
+
+      function updateAgreeCountdown() {
+        const now = window._getNow();
+
+        // If check-in window has closed, block check-in on the agree button itself.
+        if (checkinCloseTime !== null && now >= checkinCloseTime.getTime()) {
+          clearSubGroupDialogTimers();
+          _pendingCheckin = false;
+          subGroupAgreeBtn.disabled = true;
+          subGroupAgreeBtn.textContent = `Check in closed @ ${formatTime12h(checkinCloseTime)}`;
+          subGroupScrollHint.style.display = 'none';
+          // Also update the button behind the dialog in case the dialog is dismissed later.
+          confirmBtn.disabled = true;
+          confirmBtn.textContent = `Check in closed @ ${formatTime12h(checkinCloseTime)}`;
+          return;
+        }
+
+        // Gate on scroll: button stays disabled until user has scrolled to the bottom.
+        subGroupAgreeBtn.disabled = !_subGroupScrolledToBottom;
+        subGroupScrollHint.style.display = _subGroupScrolledToBottom ? 'none' : 'block';
+
+        if (checkinCloseTime !== null) {
+          const closeRemaining = checkinCloseTime.getTime() - now;
+          const mm = Math.floor(closeRemaining / 60000);
+          const ss = Math.floor((closeRemaining % 60000) / 1000);
+          const timeParts = mm > 0 ? `${mm}m ${ss}s` : `${ss}s`;
+          subGroupAgreeBtn.textContent = `I agree\n(check in closes in ${timeParts})`;
+        } else {
+          subGroupAgreeBtn.textContent = 'I agree, show me my dates';
+        }
+      }
+      _updateAgreeCountdown = updateAgreeCountdown;
+
+      clearSubGroupDialogTimers();
+      updateAgreeCountdown();
+      subGroupAgreeCountdownInterval = setInterval(updateAgreeCountdown, 250);
+
+      subGroupScrollable.removeEventListener('scroll', _onSubGroupScroll);
+      subGroupScrollable.addEventListener('scroll', _onSubGroupScroll);
+      subGroupDialog.style.display = 'flex';
+
+      // After the dialog is painted, check whether the content actually needs scrolling.
+      // If it all fits in the visible area, enable the button immediately.
+      requestAnimationFrame(() => {
+        if (!_subGroupScrolledToBottom &&
+          subGroupScrollable.scrollHeight <= subGroupScrollable.clientHeight + 2) {
+          _subGroupScrolledToBottom = true;
+          if (_updateAgreeCountdown) _updateAgreeCountdown();
+        }
+      });
+    }
+
+    function hideSubGroupDialog() {
+      subGroupDialog.style.display = 'none';
+      subGroupScrollable.removeEventListener('scroll', _onSubGroupScroll);
+      _updateAgreeCountdown = null;
+      clearSubGroupDialogTimers();
+    }
+
+    function subGroupDialogCookieKey(user) {
+      if (!user || !user.EventDate || !user.EventTime) return null;
+      return `sgDlg_${user.EventDate}_${user.EventTime.replace(':', '-')}`;
+    }
+
+    function isSubGroupDialogDismissed(user) {
+      if (window.__disableSubGroupDialogCookie === true) return false;
+      const key = subGroupDialogCookieKey(user);
+      if (!key) return false;
+      return document.cookie.split(';').some(c => c.trim().startsWith(key + '='));
+    }
+
+    function markSubGroupDialogDismissed(user) {
+      const key = subGroupDialogCookieKey(user);
+      if (!key) return;
+      document.cookie = `${key}=1; path=/; max-age=86400`;
+    }
+
+    function hasBlockingOverlayOpen() {
+      return findPersonOverlay.style.display === 'flex'
+        || overlayInfo.style.display === 'flex'
+        || confirmAttendanceDialog.style.display === 'flex'
+        || alarmNotice.style.display === 'flex'
+        || mapOverlay.style.display === 'flex';
+    }
+
+    function scheduleSubGroupDialogRetry() {
+      if (subGroupDialogRetryTimer || subGroupDialogShown || !subGroupDialogPending) return;
+      subGroupDialogRetryTimer = setTimeout(() => {
+        subGroupDialogRetryTimer = null;
+        if (!subGroupDialogPending || subGroupDialogShown) return;
+        if (hasBlockingOverlayOpen()) {
+          scheduleSubGroupDialogRetry();
+          return;
+        }
+        showSubGroupDialog();
+      }, 300);
+    }
+
+    function maybeShowSubGroupDialog(user) {
+      if (_allDatesPast || _datesFinished) return;
+      if (isMatchingAvailable()) return;
+      if (window.__disableSubGroupDialog === true) return;
+      if (!user || user.Status !== '2_ARRIVED') return;
+      if (!user.EventDate || !user.EventTime) return;
+      if (isSubGroupDialogDismissed(user)) return;
+      const [year, month, day] = user.EventDate.split('-').map(Number);
+      const [h, m] = user.EventTime.split(':').map(Number);
+      const eventMs = Date.UTC(year, month - 1, day, h, m, 0, 0);
+      if (window._getNow() >= eventMs) {
+        subGroupDialogPending = true;
+        if (hasBlockingOverlayOpen()) {
+          scheduleSubGroupDialogRetry();
+          return;
+        }
+        showSubGroupDialog();
+      }
+    }
+
+    subGroupAgreeBtn.addEventListener('click', async () => {
+      if (subGroupAgreeBtn.disabled) return;
+      initBackgroundAudio();
+      markSubGroupDialogDismissed(currentUser);
+      hideSubGroupDialog();
+      if (_pendingCheckin) {
+        _pendingCheckin = false;
+        await doCheckin();
+      } else {
+        showAlarmNotice();
+        eventCountdown.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+
+    const MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const checkinCloseNote = document.getElementById('checkinCloseNote');
+
+    function formatTime12h(dt) {
+      const ch = dt.getHours();
+      const cm = dt.getMinutes();
+      const ampm = ch >= 12 ? 'PM' : 'AM';
+      const h12 = ch % 12 || 12;
+      return `${h12}:${String(cm).padStart(2, '0')} ${ampm}`;
+    }
+
+    const eventCountdown = document.getElementById('eventCountdown');
+    const eventCountdownValue = document.getElementById('eventCountdownValue');
+    function getNextEventSignupUrl() {
+      return (typeof window.NEXT_EVENT_SIGNUP_URL !== 'undefined')
+        ? window.NEXT_EVENT_SIGNUP_URL
+        : 'https://www.eventbrite.com.au/o/121153868809?utm_source=app&utm_medium=app&utm_campaign=app_link';
+    }
+
+    function getAllDoneMessageHtml() {
+      const url = getNextEventSignupUrl();
+      return `Over the next few hours check your email (and spam!) for our email to choose your matches!<br><br>Or sign up for our next event: <a href="${url}">${url}</a>`;
+    }
+
+    // ── Dates list ──────────────────────────────────────────────────────────
+    const datesSection = document.getElementById('datesSection');
+    const datesList = document.getElementById('datesList');
+    let schedulePollInterval = null;
+    let _schedulePollInFlight = false; // prevents concurrent polls when server is slow
+    let currentSlotMs = window.DATE_DURATION_MAX || 10 * 60 * 1000;
+    let dateCountdownInterval = null;
+    let currentActiveDateMs = null;
+    let lastKnownDates = null;
+    let allDoneDismissed = false;
+    let _datesFinished = false;
+    let _firstSchedulePollDone = false; // true after the first poll result is processed
+    let _hadScheduledDates = false;     // true once a non-empty dates array has been received
+    let _allDatesPast = false;          // true once every non-break date slot has ended
+    let _alarmNoticeShownOnce = false;
+    const findPromptDismissedKeys = new Set();
+    const alarmSilencedDateKeys = new Set();
+    let _scheduleCheckinClosed = false;
+    let _lastKnownCheckinClosed = false;
+    let _lastKnownCheckinOpen = false;
+    let activeFindPrompt = null;
+    let _alarmAudioCtx = null;
+    let _findPersonAlarmInterval = null;
+    let _findPersonAlarmBurstTimeouts = [];
+    let _alarmMediaDest = null;
+    let _bgAudioStreamEl = null;
+    let _screenWakeLock = null;
+    let _bgAudioInitialized = false;
+
+    function showOverlayInfo(options) {
+      overlayInfoTitle.textContent = options.title || '';
+
+      if (options.name) {
+        overlayInfoName.textContent = options.name;
+        overlayInfoName.style.display = 'block';
+      } else {
+        overlayInfoName.textContent = '';
+        overlayInfoName.style.display = 'none';
+      }
+
+      if (options.photo) {
+        overlayInfoPhoto.src = options.photo;
+        overlayInfoPhoto.onerror = () => { overlayInfoPhoto.src = getMysteryPhotoUrl(); };
+        overlayInfoPhoto.style.display = 'block';
+      } else {
+        overlayInfoPhoto.removeAttribute('src');
+        overlayInfoPhoto.style.display = 'none';
+      }
+
+      if (overlayInfoTimerEl) {
+        const now = window._getNow();
+        if (options.dateObj && options.dateObj.timestampMs != null && options.dateObj.endTsMs != null && now >= options.dateObj.timestampMs && now < options.dateObj.endTsMs) {
+          const remaining = Math.max(0, options.dateObj.endTsMs - now);
+          const m = Math.floor(remaining / 60000);
+          const s = Math.floor((remaining % 60000) / 1000);
+          overlayInfoTimerEl.textContent = `Date ends in ${m}m ${s}s`;
+          overlayInfoTimerEl.style.display = 'block';
+        } else {
+          overlayInfoTimerEl.textContent = '';
+          overlayInfoTimerEl.style.display = 'none';
+        }
+      }
+
+      if (options.descriptionHtml) {
+        overlayInfoDescription.innerHTML = options.descriptionHtml;
+      } else {
+        overlayInfoDescription.textContent = options.descriptionText || '';
+      }
+      overlayInfoCloseBtn.style.display = options.showCloseButton ? 'inline-flex' : 'none';
+      overlayInfoDescription.classList.toggle('all-done', !!options.isAllDone);
+
+      overlayInfo.style.display = 'flex';
+    }
+
+    let profileWaitInterval = null;
+
+    function hideOverlayInfo() {
+      if (profileWaitInterval) {
+        clearInterval(profileWaitInterval);
+        profileWaitInterval = null;
+      }
+      overlayInfo.style.display = 'none';
+      overlayInfoDescription.classList.remove('all-done');
+      if (overlayInfoTimerEl) {
+        overlayInfoTimerEl.textContent = '';
+        overlayInfoTimerEl.style.display = 'none';
+        overlayInfoTimerEl.style.color = '';
+      }
+      if (overlayInfoPhoto) {
+        overlayInfoPhoto.style.objectFit = '';
+        overlayInfoPhoto.style.objectPosition = '';
+        overlayInfoPhoto.style.backgroundColor = '';
+        overlayInfoPhoto.style.aspectRatio = '';
+        overlayInfoPhoto.style.width = '';
+        overlayInfoPhoto.style.maxWidth = '';
+        overlayInfoPhoto.style.margin = '';
+      }
+    }
+
+    function getPartnerPhotoSrc(partner) {
+      if (!partner) return '';
+      return partner.photoUrl || partner.photo || (partner.hasPhoto && partner.uuid ? `/api/users/${partner.uuid}/photo` : '');
+    }
+
+    function stopSchedulePollingInterval() {
+      if (schedulePollInterval) {
+        clearInterval(schedulePollInterval);
+        schedulePollInterval = null;
+      }
+    }
+
+    function showAllDoneDialog() {
+      if (isMatchingAvailable()) return;
+      if (allDoneDismissed) return;
+      _datesFinished = true;
+      stopSchedulePollingInterval();
+      datesSection.classList.add('all-done');
+      hideAlarmNotice();
+      hideSubGroupDialog();
+      datesCallout.style.display = 'none';
+      if (typeof closeMapOverlay === 'function') closeMapOverlay(false);
+      showOverlayInfo({
+        title: 'All Done!',
+        descriptionHtml: getAllDoneMessageHtml(),
+        isAllDone: true,
+        showCloseButton: true,
+      });
+    }
+
+    function hideAllDoneDialog() {
+      datesSection.classList.remove('all-done');
+      if (overlayInfoDescription.classList.contains('all-done')) {
+        hideOverlayInfo();
+      }
+    }
+
+    function showDateProfileOverlay(partner, dateObj) {
+      if (!partner) return;
+      if (profileWaitInterval) {
+        clearInterval(profileWaitInterval);
+        profileWaitInterval = null;
+      }
+
+      const now = window._getNow();
+      if (dateObj && dateObj.timestampMs && now < dateObj.timestampMs) {
+        function updateWaitTimer() {
+          const currentNow = window._getNow();
+          if (currentNow >= dateObj.timestampMs) {
+            clearInterval(profileWaitInterval);
+            profileWaitInterval = null;
+            hideOverlayInfo();
+            if (typeof showFindPersonPrompt === 'function') {
+              showFindPersonPrompt(dateObj, currentNow, true);
+            }
+            return;
+          }
+          const remaining = dateObj.timestampMs - currentNow;
+          const m = Math.floor(remaining / 60000);
+          const s = Math.floor((remaining % 60000) / 1000);
+          const timeText = `Starts in ${m}m ${s}s`;
+          if (overlayInfoTimerEl) {
+            overlayInfoTimerEl.textContent = timeText;
+            overlayInfoTimerEl.style.display = 'block';
+            overlayInfoTimerEl.style.color = '#ff6b6b';
+          }
+        }
+
+        showOverlayInfo({
+          title: '',
+          name: partner.firstName || 'Unknown',
+          photo: getMysteryPhotoUrl(),
+          descriptionText: partner.description || '',
+          showCloseButton: true,
+          dateObj: dateObj,
+        });
+
+        if (overlayInfoPhoto) {
+          overlayInfoPhoto.style.backgroundColor = '#333';
+          overlayInfoPhoto.style.objectFit = 'cover';
+          overlayInfoPhoto.style.objectPosition = partner.sex === 'Male' ? '0% center' : '100% center';
+          overlayInfoPhoto.style.width = '232px';
+          overlayInfoPhoto.style.height = '250px';
+          overlayInfoPhoto.style.maxWidth = '100%';
+          overlayInfoPhoto.style.margin = '16px auto 0';
+          overlayInfoPhoto.style.display = 'block';
+        }
+
+        updateWaitTimer();
+        profileWaitInterval = setInterval(updateWaitTimer, 1000);
+      } else {
+        showOverlayInfo({
+          title: '',
+          name: partner.firstName || 'Unknown',
+          photo: getPartnerPhotoSrc(partner),
+          descriptionText: partner.description || '',
+          showCloseButton: true,
+          dateObj: dateObj,
+        });
+      }
+    }
+
+    overlayInfoCloseBtn.addEventListener('click', () => {
+      if (overlayInfoDescription.classList.contains('all-done')) {
+        allDoneDismissed = true;
+      }
+      hideOverlayInfo();
+    });
+
+    overlayInfo.addEventListener('click', (event) => {
+      if (event.target !== overlayInfo) return;
+      if (overlayInfoDescription.classList.contains('all-done')) {
+        allDoneDismissed = true;
+      }
+      hideOverlayInfo();
+    });
+
+    function openMapOverlay() {
+      mapOverlay.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      history.pushState({ overlay: 'map' }, '');
+    }
+
+    function closeMapOverlay(shouldGoBack = true) {
+      if (mapOverlay.style.display === 'flex') {
+        mapOverlay.style.display = 'none';
+        document.body.style.overflow = '';
+        if (shouldGoBack && history.state && history.state.overlay === 'map') {
+          history.back();
+        }
+      }
+    }
+
+    // Use event delegation to allow clicking on the map even when copied/rendered dynamically
+    document.addEventListener('click', (event) => {
+      const target = event.target;
+      if (target.tagName === 'IMG' && target.src && target.src.includes('map.png')) {
+        if (target.id === 'mapOverlayImage' || target.closest('#mapOverlay')) {
+          return;
+        }
+        openMapOverlay();
+      }
+    });
+
+    if (mapOverlayCloseBtn) {
+      mapOverlayCloseBtn.addEventListener('click', () => closeMapOverlay(true));
+    }
+
+    if (mapOverlay) {
+      mapOverlay.addEventListener('click', () => closeMapOverlay(true));
+    }
+
+    window.addEventListener('popstate', (event) => {
+      if (event.state && event.state.overlay === 'map') {
+        mapOverlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+      } else {
+        closeMapOverlay(false);
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        if (overlayInfo.style.display === 'flex') {
+          if (overlayInfoDescription.classList.contains('all-done')) {
+            allDoneDismissed = true;
+          }
+          hideOverlayInfo();
+        } else if (mapOverlay.style.display === 'flex') {
+          closeMapOverlay(true);
+        }
+      }
+    });
+
+    function toDateKey(dateObj) {
+      const namePart = dateObj?.partner?.firstName || '';
+      return `${dateObj.timestampMs}|${namePart}`;
+    }
+
+    function isUserFirstDate(dateObj) {
+      if (!dateObj || dateObj.isBreak) return false;
+      if (typeof dateObj.isFirstDate === 'boolean') return dateObj.isFirstDate;
+      const list = (typeof lastKnownDates !== 'undefined' && lastKnownDates) ||
+                   (typeof window !== 'undefined' && window.lastKnownDates);
+      if (!Array.isArray(list) || list.length === 0) {
+        return true;
+      }
+      const nonBreakDates = list
+        .filter(d => !d.isBreak)
+        .map(d => ({
+          ...d,
+          ts: typeof d.timestampMs === 'number' && !isNaN(d.timestampMs)
+            ? d.timestampMs
+            : new Date(d.Timestamp || d.timestamp).getTime()
+        }))
+        .filter(d => !isNaN(d.ts))
+        .sort((a, b) => a.ts - b.ts);
+      if (nonBreakDates.length === 0) {
+        return true;
+      }
+      const first = nonBreakDates[0];
+      const objTs = typeof dateObj.timestampMs === 'number' && !isNaN(dateObj.timestampMs)
+        ? dateObj.timestampMs
+        : (dateObj.Timestamp || dateObj.timestamp ? new Date(dateObj.Timestamp || dateObj.timestamp).getTime() : NaN);
+      if (dateObj.partner?.uuid && first.partner?.uuid) {
+        return dateObj.partner.uuid === first.partner.uuid;
+      }
+      if (!isNaN(objTs) && !isNaN(first.ts)) {
+        return objTs === first.ts;
+      }
+      return false;
+    }
+    window.isUserFirstDate = isUserFirstDate;
+
+    function getPreStartDateThresholdMs() {
+      return (window.SHOW_NEXT_DATE_PROFILE_WITH_HIDDEN_PHOTO_BEFORE_STARTS_S || 60) * 1000;
+    }
+
+    function isCheckinClosed() {
+      if (_scheduleCheckinClosed) return true;
+      if (currentUser && currentUser.EventDate && currentUser.EventTime) {
+        const [y, mo, d] = currentUser.EventDate.split('-').map(Number);
+        const [h, m] = currentUser.EventTime.split(':').map(Number);
+        const eventStartMs = Date.UTC(y, mo - 1, d, h, m, 0, 0);
+        return window._getNow() >= eventStartMs + CHECKIN_CLOSES_AFTER;
+      }
+      return false;
+    }
+    window.isCheckinClosed = isCheckinClosed;
+
+    function isCheckinOpen() {
+      if (!currentUser || !currentUser.EventDate || !currentUser.EventTime || isCheckinClosed()) return false;
+      const [y, mo, d] = currentUser.EventDate.split('-').map(Number);
+      const [h, m] = currentUser.EventTime.split(':').map(Number);
+      const eventStartMs = Date.UTC(y, mo - 1, d, h, m, 0, 0);
+      return window._getNow() >= eventStartMs - CHECKIN_OPENS_BEFORE;
+    }
+
+    async function requestScreenWakeLock() {
+      if (typeof navigator !== 'undefined' && 'wakeLock' in navigator && typeof document !== 'undefined' && document.visibilityState === 'visible') {
+        try {
+          if (!_screenWakeLock) {
+            _screenWakeLock = await navigator.wakeLock.request('screen');
+            _screenWakeLock.addEventListener('release', () => {
+              _screenWakeLock = null;
+            });
+          }
+        } catch (e) {}
+      }
+    }
+
+    function initBackgroundAudio() {
+      // 1. AudioSession playback category for iOS (allows audio when screen locked and ignores silent switch)
+      if (typeof navigator !== 'undefined' && navigator.audioSession) {
+        try {
+          navigator.audioSession.type = 'playback';
+        } catch (e) {}
+      }
+
+      // 2. Resume / initialize Web Audio context
+      try {
+        const ctx = getAlarmAudioCtx();
+        if (ctx && typeof ctx.resume === 'function') {
+          ctx.resume().catch(() => {});
+        }
+        if (ctx && typeof ctx.createMediaStreamDestination === 'function' && !_alarmMediaDest) {
+          try {
+            _alarmMediaDest = ctx.createMediaStreamDestination();
+            if (!_bgAudioStreamEl) {
+              _bgAudioStreamEl = document.createElement('audio');
+              _bgAudioStreamEl.setAttribute('playsinline', '');
+              _bgAudioStreamEl.setAttribute('autoplay', '');
+              _bgAudioStreamEl.style.display = 'none';
+              _bgAudioStreamEl.srcObject = _alarmMediaDest.stream;
+              document.body.appendChild(_bgAudioStreamEl);
+              _bgAudioStreamEl.play().catch(() => {});
+            }
+          } catch (e) {}
+        }
+      } catch (e) {}
+
+      // 3. Keep-alive silent audio loop for background persistence
+      const silentEl = document.getElementById('silentBgAudio');
+      if (silentEl && silentEl.paused) {
+        silentEl.play().catch(() => {});
+      }
+
+      // 4. Preload alarm audio element
+      const alarmEl = document.getElementById('alarmAudio');
+      if (alarmEl && !_bgAudioInitialized) {
+        try {
+          alarmEl.load();
+        } catch (e) {}
+      }
+      _bgAudioInitialized = true;
+
+      // 5. Request Screen Wake Lock so screen does not dim/sleep during event
+      requestScreenWakeLock();
+
+      // 6. Request Notification permission if supported
+      if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+        try {
+          Notification.requestPermission().catch(() => {});
+        } catch (e) {}
+      }
+    }
+
+    function getAlarmAudioCtx() {
+      if (!_alarmAudioCtx) {
+        _alarmAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      return _alarmAudioCtx;
+    }
+
+    function playAlarmChime() {
+      const ctx = getAlarmAudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const t = ctx.currentTime || 0;
+
+      // Piercing, harmonic-rich waveform (sawtooth instead of pure sine)
+      osc.type = 'sawtooth';
+
+      // Urgent two-tone emergency siren pattern (950 Hz <-> 1600 Hz alternating)
+      if (osc.frequency && typeof osc.frequency.setValueAtTime === 'function') {
+        osc.frequency.setValueAtTime(950, t);
+        if (typeof osc.frequency.linearRampToValueAtTime === 'function') {
+          osc.frequency.linearRampToValueAtTime(1600, t + 0.2);
+          osc.frequency.setValueAtTime(950, t + 0.4);
+          osc.frequency.linearRampToValueAtTime(1600, t + 0.6);
+          osc.frequency.setValueAtTime(950, t + 0.8);
+        } else {
+          osc.frequency.setValueAtTime(1600, t + 0.2);
+          osc.frequency.setValueAtTime(950, t + 0.4);
+          osc.frequency.setValueAtTime(1600, t + 0.6);
+        }
+      }
+
+      // Sustained full-volume gain envelope (1.0 peak)
+      if (gain.gain && typeof gain.gain.setValueAtTime === 'function') {
+        gain.gain.setValueAtTime(0, t);
+        if (typeof gain.gain.linearRampToValueAtTime === 'function') {
+          gain.gain.linearRampToValueAtTime(1.0, t + 0.03);
+          gain.gain.setValueAtTime(1.0, t + 0.85);
+          gain.gain.linearRampToValueAtTime(0.01, t + 0.95);
+        } else {
+          gain.gain.setValueAtTime(1.0, t);
+        }
+      }
+
+      // Route through dynamics compressor for maximum punch and loudness if supported
+      if (typeof ctx.createDynamicsCompressor === 'function') {
+        try {
+          const comp = ctx.createDynamicsCompressor();
+          comp.threshold.setValueAtTime(-18, t);
+          comp.knee.setValueAtTime(20, t);
+          comp.ratio.setValueAtTime(12, t);
+          comp.attack.setValueAtTime(0.003, t);
+          comp.release.setValueAtTime(0.25, t);
+          osc.connect(gain);
+          gain.connect(comp);
+          comp.connect(ctx.destination);
+          if (_alarmMediaDest) {
+            try { comp.connect(_alarmMediaDest); } catch (e) {}
+          }
+        } catch (compErr) {
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          if (_alarmMediaDest) {
+            try { gain.connect(_alarmMediaDest); } catch (e) {}
+          }
+        }
+      } else {
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        if (_alarmMediaDest) {
+          try { gain.connect(_alarmMediaDest); } catch (e) {}
+        }
+      }
+
+      if (typeof osc.start === 'function') osc.start(t);
+      if (typeof osc.stop === 'function') osc.stop(t + 1.0);
+
+      // Mobile phone hardware vibration
+      if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+        try { navigator.vibrate([300, 100, 300, 100, 300]); } catch (e) {}
+      }
+    }
+
+    function startFindPersonAlarm() {
+      stopFindPersonAlarm();
+
+      // Ensure background audio session and wake lock are active
+      initBackgroundAudio();
+
+      // Also trigger dedicated alarm audio element
+      const alarmEl = document.getElementById('alarmAudio');
+      if (alarmEl) {
+        try {
+          alarmEl.currentTime = 0;
+          alarmEl.volume = 1.0;
+          alarmEl.play().catch(() => {});
+        } catch (e) {}
+      }
+
+      // Configure lock-screen MediaSession so user can silence from lock screen
+      if (typeof navigator !== 'undefined' && 'mediaSession' in navigator && navigator.mediaSession) {
+        try {
+          navigator.mediaSession.playbackState = 'playing';
+        } catch (e) {}
+        try {
+          if (typeof MediaMetadata !== 'undefined') {
+            navigator.mediaSession.metadata = new MediaMetadata({
+              title: 'Your Next Date is Starting!',
+              artist: 'Ethical Speed Dating',
+              album: 'Speed Dating Alarm'
+            });
+          }
+        } catch (e) {}
+        try {
+          navigator.mediaSession.setActionHandler('pause', () => {
+            if (typeof silenceActiveAlarm === 'function') silenceActiveAlarm();
+          });
+          navigator.mediaSession.setActionHandler('stop', () => {
+            if (typeof silenceActiveAlarm === 'function') silenceActiveAlarm();
+          });
+        } catch (e) {}
+      }
+
+      // Native Web Notification when in background
+      if (typeof document !== 'undefined' && document.hidden && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+        try {
+          new Notification('Your next speed date is starting!', {
+            body: 'Open the app now to find your next date.',
+            requireInteraction: true
+          });
+        } catch (e) {}
+      }
+
+      function fireAlarmBurst() {
+        const ctx = getAlarmAudioCtx();
+        if (ctx && typeof ctx.resume === 'function') {
+          ctx.resume().catch(() => { });
+        }
+        const chimeCount = Math.floor(FIND_PERSON_ALARM_DURATION / 1000);
+        for (let i = 0; i < chimeCount; i++) {
+          _findPersonAlarmBurstTimeouts.push(setTimeout(playAlarmChime, i * 1000));
+        }
+      }
+      fireAlarmBurst();
+      _findPersonAlarmInterval = setInterval(fireAlarmBurst, FIND_PERSON_ALARM_INTERVAL);
+    }
+
+    function stopFindPersonAlarm() {
+      if (_findPersonAlarmInterval) {
+        clearInterval(_findPersonAlarmInterval);
+        _findPersonAlarmInterval = null;
+      }
+      for (const tid of _findPersonAlarmBurstTimeouts) clearTimeout(tid);
+      _findPersonAlarmBurstTimeouts = [];
+
+      const alarmEl = document.getElementById('alarmAudio');
+      if (alarmEl) {
+        try {
+          alarmEl.pause();
+          alarmEl.currentTime = 0;
+        } catch (e) {}
+      }
+
+      if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+        try { navigator.vibrate(0); } catch (e) {}
+      }
+
+      if (typeof navigator !== 'undefined' && 'mediaSession' in navigator) {
+        try {
+          navigator.mediaSession.playbackState = 'none';
+        } catch (e) {}
+      }
+    }
+
+    function hideFindPersonPrompt() {
+      stopFindPersonAlarm();
+      if (silenceAlarmOverlay) silenceAlarmOverlay.style.display = 'none'; if (document.getElementById('findPersonCloseBtn')) document.getElementById('findPersonCloseBtn').style.display = '';
+      activeFindPrompt = null;
+      findPersonOverlay.style.display = 'none';
+      if (findPersonTimerEl) {
+        findPersonTimerEl.textContent = '';
+        findPersonTimerEl.style.display = 'none';
+      }
+    }
+
+    function silenceActiveAlarm() {
+      if (activeFindPrompt && activeFindPrompt.key) {
+        alarmSilencedDateKeys.add(activeFindPrompt.key);
+      }
+      stopFindPersonAlarm();
+      if (silenceAlarmOverlay) {
+        silenceAlarmOverlay.style.display = 'none'; if (document.getElementById('findPersonCloseBtn')) document.getElementById('findPersonCloseBtn').style.display = '';
+      }
+    }
+
+    function renderFindPersonTimer(now) {
+      if (!findPersonTimerEl) return;
+      if (!activeFindPrompt || now >= activeFindPrompt.endTsMs) {
+        findPersonTimerEl.textContent = '';
+        findPersonTimerEl.style.display = 'none';
+        return;
+      }
+      
+      const titleEl = document.getElementById('findPersonTitle');
+      const photoEl = document.getElementById('findPersonPhoto');
+
+      const thresholdMs = getPreStartDateThresholdMs();
+      const alarmShouldBeActive = (activeFindPrompt.timestampMs - now) <= thresholdMs;
+      
+      // Trigger alarm transition if we just crossed the start threshold
+      if (alarmShouldBeActive && !activeFindPrompt._alarmStarted && !activeFindPrompt.found && !activeFindPrompt.couldNotFind) {
+        activeFindPrompt._alarmStarted = true;
+        if (activeFindPrompt.key && !alarmSilencedDateKeys.has(activeFindPrompt.key)) {
+          if (silenceAlarmOverlay) silenceAlarmOverlay.style.display = 'flex'; if (document.getElementById('findPersonCloseBtn')) document.getElementById('findPersonCloseBtn').style.display = 'none';
+          startFindPersonAlarm();
+        } else {
+          if (silenceAlarmOverlay) silenceAlarmOverlay.style.display = 'none'; if (document.getElementById('findPersonCloseBtn')) document.getElementById('findPersonCloseBtn').style.display = '';
+        }
+      } else if (alarmShouldBeActive && activeFindPrompt.key && alarmSilencedDateKeys.has(activeFindPrompt.key)) {
+        if (silenceAlarmOverlay) silenceAlarmOverlay.style.display = 'none'; if (document.getElementById('findPersonCloseBtn')) document.getElementById('findPersonCloseBtn').style.display = '';
+      }
+      
+      if (now < activeFindPrompt.timestampMs) {
+        const startRemaining = activeFindPrompt.timestampMs - now;
+        const m = Math.floor(startRemaining / 60000);
+        const s = Math.floor((startRemaining % 60000) / 1000);
+        
+        if (titleEl) {
+          const isFirst = typeof activeFindPrompt.isFirstDate === 'boolean'
+            ? activeFindPrompt.isFirstDate
+            : isUserFirstDate(activeFindPrompt);
+          if (startRemaining <= thresholdMs && !isFirst) {
+            titleEl.innerHTML = `Return to Start<br>Starts in ${m}m ${s}s`;
+          } else {
+            titleEl.textContent = `Starts in ${m}m ${s}s`;
+          }
+        }
+        
+        findPersonTimerEl.textContent = '';
+        findPersonTimerEl.style.display = 'none';
+        
+        foundPersonBtn.style.display = 'none';
+        cantFindPersonBtn.style.display = 'none';
+        
+        photoEl.src = getMysteryPhotoUrl();
+        photoEl.style.display = 'block';
+        photoEl.style.width = '232px'; // exactly half aspect ratio for 250px height
+        photoEl.style.height = '250px';
+        photoEl.style.maxWidth = '100%';
+        photoEl.style.objectFit = 'cover';
+        const sex = activeFindPrompt.partner?.sex || '';
+        photoEl.style.objectPosition = sex === 'Male' ? '0% center' : '100% center';
+        photoEl.style.margin = '0 auto 24px';
+      } else {
+        if (titleEl) titleEl.textContent = 'Find This Person';
+        
+        foundPersonBtn.style.display = 'inline-block';
+        if (isInFinalTwentyPercent(activeFindPrompt, now)) {
+          cantFindPersonBtn.style.display = 'none';
+        } else {
+          cantFindPersonBtn.style.display = 'inline-block';
+        }
+        
+        // Restore real photo
+        const realPhoto = getPartnerPhotoSrc(activeFindPrompt.partner);
+        if (realPhoto) {
+          photoEl.src = realPhoto;
+          photoEl.onerror = () => { photoEl.src = getMysteryPhotoUrl(); };
+          photoEl.style.display = 'block';
+          photoEl.style.aspectRatio = '';
+          photoEl.style.maxWidth = '';
+          photoEl.style.height = '';
+          photoEl.style.objectFit = '';
+          photoEl.style.objectPosition = '';
+        } else {
+          photoEl.removeAttribute('src');
+          photoEl.style.display = 'none';
+        }
+
+        const remaining = Math.max(0, activeFindPrompt.endTsMs - now);
+        if (remaining <= 0) {
+          findPersonTimerEl.textContent = '';
+          findPersonTimerEl.style.display = 'none';
+          return;
+        }
+        const m = Math.floor(remaining / 60000);
+        const s = Math.floor((remaining % 60000) / 1000);
+        findPersonTimerEl.textContent = `Date ends in ${m}m ${s}s`;
+        findPersonTimerEl.style.display = 'block';
+      }
+    }
+
+    function isInFinalTwentyPercent(dateObj, now) {
+      const totalMs = Math.max(1, dateObj.endTsMs - dateObj.timestampMs);
+      const remainingDateMs = Math.max(0, dateObj.endTsMs - now);
+      return remainingDateMs <= totalMs * (FIND_PERSON_DIALOG_AUTO_CLOSE_PERCENT_REMAINING / 100);
+    }
+
+    // Returns the ms timestamp when the Find Person dialog will auto-close for a given date.
+    function findPersonDialogAutoCloseMs(dateObj) {
+      const totalMs = dateObj.endTsMs - dateObj.timestampMs;
+      return dateObj.timestampMs + totalMs * (1 - FIND_PERSON_DIALOG_AUTO_CLOSE_PERCENT_REMAINING / 100);
+    }
+
+    function renderCantFindButton(now) {
+      if (!activeFindPrompt) return;
+
+      // Hide the "I can't find them" option when the dialog enters its auto-close window.
+      if (isInFinalTwentyPercent(activeFindPrompt, now)) {
+        cantFindPersonBtn.style.display = 'none';
+        return;
+      }
+
+      cantFindPersonBtn.style.display = 'inline-block';
+      const slotDuration = (activeFindPrompt.endTsMs && activeFindPrompt.endTsMs > activeFindPrompt.timestampMs)
+        ? (activeFindPrompt.endTsMs - activeFindPrompt.timestampMs)
+        : currentSlotMs;
+      const enableAt = activeFindPrompt.timestampMs + Math.round(
+        slotDuration * (1 - I_CANT_FIND_THEM_ENABLED_DATE_PERCENT_REMAINING / 100)
+      );
+      const remaining = Math.max(0, enableAt - now);
+
+      const autoCloseAt = findPersonDialogAutoCloseMs(activeFindPrompt);
+      const closeRemaining = Math.max(0, autoCloseAt - now);
+      
+      let autoCloseText = '';
+      let availableText = '';
+      if (closeRemaining > 0) {
+        const fm = Math.floor(closeRemaining / 60000);
+        const fs = Math.floor((closeRemaining % 60000) / 1000);
+        autoCloseText = fm > 0 ? `(auto closes in ${fm}m ${fs}s)` : `(auto closes in ${fs}s)`;
+        availableText = fm > 0 ? `${fm}m ${fs}s` : `${fs}s`;
+      }
+
+      if (foundPersonBtn.disabled) {
+        cantFindPersonBtn.disabled = true;
+        cantFindPersonBtn.textContent = "I can't find them";
+        foundPersonBtn.textContent = autoCloseText ? `Found them\n${autoCloseText}` : 'Found them';
+      } else {
+        if (remaining <= 0) {
+          cantFindPersonBtn.disabled = false;
+          cantFindPersonBtn.textContent = availableText ? `I can't find them\n(available for ${availableText})` : "I can't find them";
+          foundPersonBtn.textContent = autoCloseText ? `Found them\n${autoCloseText}` : 'Found them';
+        } else {
+          cantFindPersonBtn.disabled = true;
+          const m = Math.floor(remaining / 60000);
+          const s = Math.floor((remaining % 60000) / 1000);
+          cantFindPersonBtn.textContent = `I can't find them\n(enabled in ${m}m ${s}s)`;
+          foundPersonBtn.textContent = 'Found them';
+        }
+      }
+    }
+
+    function showFindPersonPrompt(dateObj, now, force = false) {
+      const key = toDateKey(dateObj);
+      if (!force && findPromptDismissedKeys.has(key)) return;
+      const currentNow = typeof now === 'number' ? now : (typeof window._getNow === 'function' ? window._getNow() : Date.now());
+
+      // If the date is already in its final 20%, do not show prompt (skip in FAST_MODE).
+      if (!force && !window.FAST_MODE && isInFinalTwentyPercent(dateObj, now)) {
+        findPromptDismissedKeys.add(key);
+        hideFindPersonPrompt();
+        return;
+      }
+
+      const isFirst = typeof dateObj.isFirstDate === 'boolean' ? dateObj.isFirstDate : isUserFirstDate(dateObj);
+      activeFindPrompt = {
+        ...dateObj,
+        key,
+        isFirstDate: isFirst,
+        openedAtMs: typeof now === 'number' ? now : (typeof window._getNow === 'function' ? window._getNow() : Date.now()),
+      };
+      if (dateObj.found) {
+        foundPersonBtn.disabled = true;
+        foundPersonBtn.textContent = 'Found them';
+        cantFindPersonBtn.disabled = true;
+        cantFindPersonBtn.textContent = "I can't find them";
+      } else if (dateObj.couldNotFind) {
+        foundPersonBtn.disabled = true;
+        foundPersonBtn.textContent = 'Found them';
+        cantFindPersonBtn.disabled = true;
+        cantFindPersonBtn.textContent = "I can't find them";
+      } else {
+        foundPersonBtn.disabled = false;
+        foundPersonBtn.textContent = 'Found them';
+      }
+
+      findPersonNameEl.textContent = dateObj?.partner?.firstName || 'Unknown';
+      findPersonDescriptionEl.textContent = dateObj?.partner?.description || '';
+
+      const thresholdMs = getPreStartDateThresholdMs();
+      const startRemaining = dateObj.timestampMs - now;
+      const alarmShouldBeActive = startRemaining <= thresholdMs;
+
+      if (!alarmShouldBeActive) {
+        activeFindPrompt._alarmStarted = false;
+        if (silenceAlarmOverlay) silenceAlarmOverlay.style.display = 'none'; if (document.getElementById('findPersonCloseBtn')) document.getElementById('findPersonCloseBtn').style.display = '';
+        if (force) stopFindPersonAlarm();
+      } else {
+        activeFindPrompt._alarmStarted = true;
+        if (force) {
+          alarmSilencedDateKeys.add(key);
+        }
+        if (!force && !dateObj.found && !dateObj.couldNotFind && !alarmSilencedDateKeys.has(key)) {
+          if (silenceAlarmOverlay) silenceAlarmOverlay.style.display = 'flex'; if (document.getElementById('findPersonCloseBtn')) document.getElementById('findPersonCloseBtn').style.display = 'none';
+          startFindPersonAlarm();
+        } else {
+          if (silenceAlarmOverlay) silenceAlarmOverlay.style.display = 'none'; if (document.getElementById('findPersonCloseBtn')) document.getElementById('findPersonCloseBtn').style.display = '';
+          stopFindPersonAlarm();
+        }
+      }
+
+      renderCantFindButton(now);
+      renderFindPersonTimer(now);
+      hideAlarmNotice();
+      
+      hideSubGroupDialog();
+      hideConfirmAttendanceDialog();
+      if (typeof closeMapOverlay === 'function') closeMapOverlay(false);
+      hideOverlayInfo();
+      findPersonOverlay.style.display = 'flex';
+    }
+
+    window.showFindPersonPrompt = showFindPersonPrompt;
+
+    foundPersonBtn.addEventListener('click', () => {
+      if (!activeFindPrompt) return;
+      if (foundPersonBtn.disabled) return;
+
+      const targetUuid = activeFindPrompt?.partner?.uuid;
+      const slotStartMs = activeFindPrompt?.timestampMs;
+      if (!targetUuid) {
+        showStatus('error', '\u2717 Could not record response: partner UUID missing');
+        return;
+      }
+
+      foundPersonBtn.disabled = true;
+      cantFindPersonBtn.disabled = true;
+      renderCantFindButton(window._getNow());
+      if (activeFindPrompt && activeFindPrompt.key) {
+        alarmSilencedDateKeys.add(activeFindPrompt.key);
+      }
+      stopFindPersonAlarm();
+      if (silenceAlarmOverlay) silenceAlarmOverlay.style.display = 'none'; if (document.getElementById('findPersonCloseBtn')) document.getElementById('findPersonCloseBtn').style.display = '';
+
+      apiFetch(`/api/found/${uuid}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ partnerUuid: targetUuid, slotStartMs, slotMs: currentSlotMs }),
+      }).then(async (res) => {
+        if (!res.ok) {
+          let errMsg = 'Failed to record response';
+          try { const d = await res.json(); errMsg = d.error || errMsg; } catch (_) { }
+          throw new Error(errMsg);
+        }
+        await pollSchedule();
+      }).catch((err) => {
+        foundPersonBtn.disabled = false;
+        cantFindPersonBtn.disabled = false;
+        renderCantFindButton(window._getNow());
+        showStatus('error', `\u2717 ${err.message}`);
+      });
+    });
+
+    cantFindPersonBtn.addEventListener('click', () => {
+      if (!activeFindPrompt) return;
+      if (cantFindPersonBtn.disabled) return;
+
+      const targetUuid = activeFindPrompt?.partner?.uuid;
+      const slotStartMs = activeFindPrompt?.timestampMs;
+      if (!targetUuid) {
+        showStatus('error', '\u2717 Could not record report: partner UUID missing');
+        return;
+      }
+
+      // Optimistic update: dismiss overlay immediately.
+      const partnerName = activeFindPrompt?.partner?.firstName || 'them';
+      findPromptDismissedKeys.add(activeFindPrompt.key);
+      // Mark the date in cached data and re-render the list immediately.
+      if (lastKnownDates) {
+        const tsIso = activeFindPrompt.Timestamp || activeFindPrompt.timestamp ||
+          new Date(activeFindPrompt.timestampMs).toISOString();
+        lastKnownDates = lastKnownDates.map(d =>
+          (d.Timestamp || d.timestamp) === tsIso ? { ...d, couldNotFind: true } : d
+        );
+        renderDates(lastKnownDates);
+      }
+      hideFindPersonPrompt();
+
+      apiFetch(`/api/cant-find/${uuid}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ partnerUuid: targetUuid, slotStartMs, slotMs: currentSlotMs }),
+      }).then(async (res) => {
+        if (!res.ok) {
+          let errMsg = 'Failed to record report';
+          try { const d = await res.json(); errMsg = d.error || errMsg; } catch (_) { }
+          throw new Error(errMsg);
+        }
+
+        await pollSchedule();
+      }).catch((err) => {
+        showStatus('error', `\u2717 ${err.message}`);
+      });
+    });
+
+    async function handleMatchCheckboxChange(partnerUuid, checked) {
+      const savingOverlay = document.getElementById('savingOverlay');
+      if (savingOverlay) savingOverlay.style.display = 'flex';
+      try {
+        const res = await apiFetch(`/api/users/${uuid}/match`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ partnerUuid, interested: checked })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || 'Failed to save match choice');
+        }
+
+        // Reload user status dynamically to get updated InterestedIn values
+        const userRes = await apiFetch(`/api/users/${uuid}`);
+        const userData = await userRes.json();
+        if (userRes.ok && userData.user) {
+          currentUser = userData.user;
+        }
+
+        if (data.mutual && data.emailSent) {
+          alert("Mutual match! An email has been sent to both of you (please check your spam).");
+        } else if (checked && !data.mutual) {
+          const notMutualOverlay = document.getElementById('notMutualMatchOverlay');
+          const notMutualSignupLink = document.getElementById('notMutualSignupLink');
+          if (notMutualOverlay && notMutualSignupLink) {
+            notMutualSignupLink.href = data.nextEventSignupUrl || '#';
+            notMutualSignupLink.textContent = data.nextEventSignupUrl || '';
+            notMutualOverlay.style.display = 'flex';
+          }
+        }
+        
+        // Re-render to ensure UI reflects the new currentUser state, in case pollSchedule overwrote it during save
+        renderDates(lastKnownDates);
+      } catch (err) {
+        showStatus('error', `✗ ${err.message}`);
+        // Re-render to revert checkbox state on error
+        renderDates(lastKnownDates);
+      } finally {
+        if (savingOverlay) savingOverlay.style.display = 'none';
+      }
+    }
+
+    // Attach event listeners for Not Mutual Match dialog
+    document.getElementById('notMutualCloseBtn')?.addEventListener('click', () => {
+      const overlay = document.getElementById('notMutualMatchOverlay');
+      if (overlay) overlay.style.display = 'none';
+    });
+    document.getElementById('notMutualOkBtn')?.addEventListener('click', () => {
+      const overlay = document.getElementById('notMutualMatchOverlay');
+      if (overlay) overlay.style.display = 'none';
+    });
+
+    function formatDateItemTime(tsMs) {
+      const dt = new Date(tsMs);
+      const h = dt.getHours();
+      const m = dt.getMinutes();
+      const ap = h >= 12 ? 'PM' : 'AM';
+      const h12 = h % 12 || 12;
+      return `${h12}:${String(m).padStart(2, '0')} ${ap}`;
+    }
+
+    function formatDateListCountdown(remainingMs) {
+      if (!remainingMs || isNaN(remainingMs) || remainingMs <= 0) return '0m 0s';
+      const d = Math.floor(remainingMs / 86400000);
+      const hh = Math.floor((remainingMs % 86400000) / 3600000);
+      const mm = Math.floor((remainingMs % 3600000) / 60000);
+      const ss = Math.floor((remainingMs % 60000) / 1000);
+      if (d >= 1) return `${d}d ${hh}h`;
+      if (hh >= 1) return `${hh}h ${mm}m`;
+      return `${mm}m ${ss}s`;
+    }
+    window.formatDateListCountdown = formatDateListCountdown;
+
+    function setCheckinWaitingLabel(nameEl, label, checkinOpen) {
+      nameEl.textContent = label;
+      if (!checkinOpen) return;
+
+      nameEl.appendChild(document.createTextNode(' '));
+      const note = document.createElement('span');
+      note.className = 'checkin-waiting-note';
+      note.textContent = '(waiting for confirmed attendees to check in)';
+      nameEl.appendChild(note);
+    }
+
+    function createMysteryDateItem(padTsMs, _padWoman, isNextUp, addCountdown, checkinOpen = isCheckinOpen()) {
+      const padItem = document.createElement('div');
+      padItem.className = 'date-item mystery' + (isNextUp ? ' next-up' : '');
+      
+      const padImg = document.createElement('img');
+      padImg.src = getMysteryPhotoUrl();
+      padImg.alt = '?';
+      padImg.className = 'mystery-face' + (_padWoman ? ' mystery-woman' : '');
+      padItem.appendChild(padImg);
+      
+      const padInfo = document.createElement('div');
+      padInfo.className = 'date-info';
+      
+      const padNameEl = document.createElement('div');
+      padNameEl.className = 'date-name';
+      setCheckinWaitingLabel(padNameEl, '?', checkinOpen);
+      padInfo.appendChild(padNameEl);
+      
+      if (addCountdown) {
+        const countdownEl = document.createElement('div');
+        countdownEl.className = 'date-countdown';
+        countdownEl.style.fontSize = '0.85rem';
+        countdownEl.style.fontWeight = 'bold';
+        countdownEl.style.color = '#ff6b6b';
+        countdownEl.style.marginTop = '4px';
+        countdownEl.id = 'firstPlaceholderCountdown';
+        padInfo.appendChild(countdownEl);
+      }
+
+      padItem.appendChild(padInfo);
+      
+      if (isCheckinClosed()) {
+        const padTimeEl = document.createElement('div');
+        padTimeEl.className = 'date-time';
+        padTimeEl.textContent = formatDateItemTime(padTsMs);
+        padItem.appendChild(padTimeEl);
+      }
+      
+      return padItem;
+    }
+
+    function renderDates(dates) {
+      _lastKnownCheckinClosed = isCheckinClosed();
+      _lastKnownCheckinOpen = isCheckinOpen();
+      if (!dates || dates.length === 0) {
+        if (currentUser && currentUser.EventDate && currentUser.EventTime) {
+          const [y, mo, d] = currentUser.EventDate.split('-').map(Number);
+          const [hUtc, mUtc] = currentUser.EventTime.split(':').map(Number);
+          const eventStartMs = Date.UTC(y, mo - 1, d, hUtc, mUtc, 0);
+
+          const now = window._getNow();
+          const checkinOpensAt = eventStartMs - window.CHECKIN_OPENS_BEFORE;
+          const isCheckinOpen = now >= checkinOpensAt;
+          const hasCheckedIn = currentUser.Status === '2_ARRIVED';
+
+          if (isCheckinOpen && !hasCheckedIn) {
+            datesSection.style.display = 'none';
+            return;
+          }
+
+          if (now < eventStartMs) {
+            renderPlaceholderDates(currentUser, true);
+            return;
+          } else {
+            // Event has started, show placeholders WITHOUT countdown
+            renderPlaceholderDates(currentUser, false);
+            return;
+          }
+        }
+
+        datesSection.style.display = 'none';
+        hideAllDoneDialog();
+        if (_datesFinished || isMatchingAvailable()) {
+          setDatesCalloutVisible(false);
+          confirmBtn.style.display = 'none';
+          checkinWarning.style.display = 'none';
+          locationEl.style.display = 'none';
+        }
+        return;
+      }
+      _hadScheduledDates = true;
+      lastKnownDates = dates;
+      window.lastKnownDates = dates;
+      window._lastDates = dates;
+
+      if (isMatchingAvailable()) {
+        hideAllDoneDialog();
+      }
+
+      setEventDateTimeVisible(false);
+      locationEl.style.display = 'none';
+      checkinWarning.style.display = 'none';
+      confirmBtn.style.display = 'none';
+      setDatesCalloutVisible(!isMatchingAvailable());
+
+      const nowMs = window._getNow();
+      const checkinOpen = isCheckinOpen();
+
+      if (dateCountdownInterval) {
+        clearInterval(dateCountdownInterval);
+        dateCountdownInterval = null;
+      }
+
+      let nextDateEl = null;
+      let nextDateObj = null;
+
+      // 1. Parse timestamps and sort the payload
+      const parsedDates = dates.map(d => ({
+        ...d,
+        timestampMs: typeof d.timestampMs === 'number' && !isNaN(d.timestampMs)
+          ? d.timestampMs
+          : new Date(d.Timestamp || d.timestamp).getTime()
+      })).sort((a, b) => a.timestampMs - b.timestampMs);
+
+      let firstRealFound = false;
+      parsedDates.forEach(d => {
+        if (!d.isBreak && !firstRealFound) {
+          d.isFirstDate = true;
+          firstRealFound = true;
+        } else {
+          d.isFirstDate = false;
+        }
+      });
+
+      // 2. Build augmented schedule with Breaks filled in
+      let augmentedDates = [];
+      if (parsedDates.length > 0) {
+        let eventStartMs = parsedDates[0].timestampMs;
+
+        // Align schedule gaps to the user's expected Event Start Time
+        if (typeof currentUser !== 'undefined' && currentUser && currentUser.EventDate && currentUser.EventTime) {
+          const [y, mo, d] = currentUser.EventDate.split('-').map(Number);
+          const [h, m] = currentUser.EventTime.split(':').map(Number);
+          const eStart = Date.UTC(y, mo - 1, d, h, m, 0, 0);
+          if (eStart < eventStartMs) {
+            eventStartMs = eStart;
+          }
+        }
+
+        let currentSlot = eventStartMs;
+        let i = 0;
+        while (i < parsedDates.length) {
+          const nextDate = parsedDates[i];
+          // Fill missing slots up to the next scheduled date (60,000ms threshold for safety)
+          while (currentSlot + 60000 <= nextDate.timestampMs) {
+            augmentedDates.push({ isBreak: true, timestampMs: currentSlot, partner: null, isFirstDate: false });
+            currentSlot += currentSlotMs;
+          }
+          augmentedDates.push(nextDate);
+          currentSlot = nextDate.timestampMs + currentSlotMs;
+          i++;
+        }
+
+        // If matching is not available, check-in is still open / event not finished,
+        // and we have elapsed past the user's scheduled dates, fill any elapsed/active
+        // slots with Breaks up to the current time so the user sees an active Break
+        // rather than static mystery silhouettes for slots that have already started.
+        if (!isMatchingAvailable() && !_datesFinished) {
+          while (currentSlot <= nowMs) {
+            augmentedDates.push({ isBreak: true, timestampMs: currentSlot, partner: null, isFirstDate: false });
+            currentSlot += currentSlotMs;
+          }
+        }
+      }
+
+      // On match screen (when matching is available), compress any consecutive breaks into just one break
+      if (isMatchingAvailable() && augmentedDates.length > 0) {
+        const compressed = [];
+        for (let i = 0; i < augmentedDates.length; i++) {
+          const item = augmentedDates[i];
+          if (item.isBreak) {
+            const prevItem = compressed[compressed.length - 1];
+            if (prevItem && prevItem.isBreak) {
+              continue;
+            }
+          }
+          compressed.push(item);
+        }
+        augmentedDates = compressed;
+      }
+
+      // If the active find-person dialog is for a partner who no longer appears in the
+      // updated schedule (their slot became a Break after removal), dismiss it immediately.
+      if (activeFindPrompt) {
+        const promptUuid = activeFindPrompt?.partner?.uuid;
+        const partnerStillPresent = promptUuid &&
+          augmentedDates.some(d => !d.isBreak && d.partner?.uuid === promptUuid);
+        if (!partnerStillPresent) {
+          hideFindPersonPrompt();
+        }
+      }
+
+      datesList.innerHTML = '';
+      let activeOrNextFound = false;
+
+      augmentedDates.forEach((d, index) => {
+        const dTsMs = d.timestampMs;
+        const nextItem = augmentedDates[index + 1];
+        const endTsMs = nextItem ? nextItem.timestampMs : dTsMs + currentSlotMs;
+        d.endTsMs = endTsMs;
+
+        const isPast = nowMs >= endTsMs;
+        const isNext = !isPast && !activeOrNextFound;
+        if (isNext) activeOrNextFound = true;
+
+        // Upcoming breaks before check-in is closed appear as mystery placeholder images
+        // (with the waiting note) because late arrivals can still fill the slot.
+        const isUpcomingBreakBeforeCheckinClosed = d.isBreak && nowMs < dTsMs && !isCheckinClosed();
+
+        // Future date whose identity has not yet been revealed to the user,
+        // or an upcoming break while check-in remains open.
+        const isMystery = (!d.isBreak && nowMs < dTsMs) || isUpcomingBreakBeforeCheckinClosed;
+
+        const item = document.createElement('div');
+        item.className = 'date-item' + (isPast ? ' past' : '') + (isNext ? ' next-up' : '') + (isMystery ? ' mystery' : '');
+
+        const info = document.createElement('div');
+        info.className = 'date-info';
+
+        if (d.isBreak && !isUpcomingBreakBeforeCheckinClosed) {
+          const spacer = document.createElement('div');
+          spacer.style.width = '52px';
+          spacer.style.height = '52px';
+          spacer.style.flexShrink = '0';
+          item.appendChild(spacer);
+
+          const nameEl = document.createElement('div');
+          nameEl.className = 'date-name';
+          nameEl.textContent = 'Break';
+          info.appendChild(nameEl);
+        } else if (isMystery) {
+          // Future date or upcoming break before check-in closes — hide identity until slot starts.
+          // Use the viewer's sex to pick the correct silhouette half:
+          // male viewer → dates are female → woman half; female viewer → dates are male → man half.
+          const mystImg = document.createElement('img');
+          mystImg.src = getMysteryPhotoUrl();
+          mystImg.alt = '?';
+          mystImg.className = 'mystery-face' + ((currentUser && currentUser.Sex) === 'Male' ? ' mystery-woman' : '');
+          item.appendChild(mystImg);
+          
+          const mystNameEl = document.createElement('div');
+          mystNameEl.className = 'date-name';
+          if (isUpcomingBreakBeforeCheckinClosed) {
+            setCheckinWaitingLabel(mystNameEl, '?', checkinOpen);
+          } else {
+            mystNameEl.textContent = '?';
+          }
+          info.appendChild(mystNameEl);
+          
+          if (!d.isBreak) {
+            // Make it clickable so the user can open the preview overlay (which tells them the start time)
+            item.style.cursor = 'pointer';
+            item.setAttribute('role', 'button');
+            item.setAttribute('tabindex', '0');
+            item.setAttribute('aria-label', `Open upcoming date profile`);
+            item.addEventListener('click', () => {
+              showFindPersonPrompt(d, window._getNow(), true);
+            });
+            item.addEventListener('keydown', (event) => {
+              if (event.key !== 'Enter' && event.key !== ' ') return;
+              event.preventDefault();
+              showFindPersonPrompt(d, window._getNow(), true);
+            });
+          }
+        } else {
+          // Past or currently active date — reveal full identity.
+          const img = document.createElement('img');
+          const photoSrc = getPartnerPhotoSrc(d.partner);
+          if (photoSrc) {
+            img.src = photoSrc;
+            img.onerror = () => { img.src = getMysteryPhotoUrl(); };
+          } else {
+            img.style.visibility = 'hidden';
+          }
+          img.alt = d.partner.firstName || '?';
+          item.appendChild(img);
+
+          item.style.cursor = 'pointer';
+          item.setAttribute('role', 'button');
+          item.setAttribute('tabindex', '0');
+          item.setAttribute('aria-label', `Open profile for ${d.partner.firstName || 'this person'}`);
+          const openPromptOrProfile = () => {
+            const now = window._getNow();
+            const thresholdMs = getPreStartDateThresholdMs();
+            const isWithinPreStart = isNext && !d.isBreak && now < d.timestampMs && (d.timestampMs - now) <= thresholdMs;
+            if (isNext && !d.isBreak && (now >= d.timestampMs || isWithinPreStart)) {
+              showFindPersonPrompt(d, now, true);
+            } else {
+              showDateProfileOverlay(d.partner, d);
+            }
+          };
+          item.addEventListener('click', openPromptOrProfile);
+          item.addEventListener('keydown', (event) => {
+            if (event.key !== 'Enter' && event.key !== ' ') return;
+            event.preventDefault();
+            openPromptOrProfile();
+          });
+
+          const nameEl = document.createElement('div');
+          nameEl.className = 'date-name';
+          if (d.couldNotFind) {
+            nameEl.textContent = `I could not find ${d.partner?.firstName || 'them'}`;
+            nameEl.style.color = '#f28b82';
+            nameEl.style.fontWeight = '700';
+          } else {
+            nameEl.textContent = d.partner.firstName || '?';
+          }
+          info.appendChild(nameEl);
+
+          if (d.couldNotFind && _isAdmin) {
+            const resetBtn = document.createElement('button');
+            resetBtn.className = 'btn-reset-cant-find';
+            resetBtn.type = 'button';
+            resetBtn.textContent = 'Reset "Can\'t Find"';
+            resetBtn.addEventListener('click', async (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              const partnerName = d.partner?.firstName || 'this person';
+              if (!confirm(`Reset "can't find" for ${partnerName}?`)) return;
+              resetBtn.disabled = true;
+              resetBtn.textContent = 'Resetting...';
+              try {
+                const resetRes = await apiFetch('/api/admin/reset-cant-find', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json', 'x-admin': '1' },
+                  body: JSON.stringify({ uuid: currentUser?.UUID || uuid, partnerUuid: d.partner.uuid }),
+                });
+                if (!resetRes.ok) {
+                  const errData = await resetRes.json().catch(() => ({}));
+                  alert(errData.error || 'Failed to reset status');
+                  resetBtn.disabled = false;
+                  resetBtn.textContent = 'Reset "Can\'t Find"';
+                  return;
+                }
+                d.couldNotFind = false;
+                if (lastKnownDates) {
+                  const target = lastKnownDates.find(x => (x.Timestamp || x.timestamp) === (d.Timestamp || d.timestamp));
+                  if (target) target.couldNotFind = false;
+                  renderDates(lastKnownDates);
+                }
+                if (typeof pollSchedule === 'function') {
+                  pollSchedule();
+                }
+              } catch (err) {
+                alert('Network error while resetting status');
+                resetBtn.disabled = false;
+                resetBtn.textContent = 'Reset "Can\'t Find"';
+              }
+            });
+            info.appendChild(resetBtn);
+          }
+
+          if (isMatchingAvailable() && !d.couldNotFind) {
+            const viewLink = document.createElement('a');
+            viewLink.href = '#';
+            viewLink.className = 'view-profile-link';
+            viewLink.textContent = 'View';
+            viewLink.style.display = 'block';
+            viewLink.style.fontSize = '0.85rem';
+            viewLink.style.color = '#ff6b6b';
+            viewLink.style.textDecoration = 'underline';
+            viewLink.style.marginTop = '2px';
+            viewLink.style.cursor = 'pointer';
+            viewLink.addEventListener('click', (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              showDateProfileOverlay(d.partner, d);
+            });
+            info.appendChild(viewLink);
+          }
+        }
+
+        if (isPast) {
+          if (!d.couldNotFind && !isMatchingAvailable()) {
+            const statusEl = document.createElement('div');
+            statusEl.className = 'date-desc';
+            statusEl.style.marginTop = '4px';
+            statusEl.style.fontWeight = '700';
+            statusEl.style.color = '#777';
+            statusEl.style.display = 'flex';
+            statusEl.style.alignItems = 'baseline';
+            statusEl.style.gap = '8px';
+
+            const finishedText = document.createElement('span');
+            finishedText.textContent = 'Finished';
+            statusEl.appendChild(finishedText);
+
+            if (!d.isBreak) {
+              const viewLink = document.createElement('a');
+              viewLink.href = '#';
+              viewLink.textContent = 'View';
+              viewLink.style.color = '#ff6b6b';
+              viewLink.style.textDecoration = 'underline';
+              viewLink.style.fontWeight = 'normal';
+              viewLink.style.fontSize = '0.85rem';
+              viewLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                showDateProfileOverlay(d.partner, d);
+              });
+              statusEl.appendChild(viewLink);
+            }
+
+            info.appendChild(statusEl);
+          }
+        } else if (isNext && d.couldNotFind) {
+          // Track as nextDateObj so updateDateCountdown detects slot end and advances the list.
+          // Add countdown so the timer remains visible during the current slot.
+          nextDateEl = item;
+          nextDateObj = { ...d, timestampMs: dTsMs, endTsMs: endTsMs };
+
+          const countdownEl = document.createElement('div');
+          countdownEl.className = 'date-countdown';
+          countdownEl.style.fontSize = '0.85rem';
+          countdownEl.style.fontWeight = 'bold';
+          countdownEl.style.color = '#ff6b6b';
+          countdownEl.style.marginTop = '4px';
+          info.appendChild(countdownEl);
+        } else if (isNext) {
+          nextDateEl = item;
+          nextDateObj = { ...d, timestampMs: dTsMs, endTsMs: endTsMs };
+
+          const countdownEl = document.createElement('div');
+          countdownEl.className = 'date-countdown';
+          countdownEl.style.fontSize = '0.85rem';
+          countdownEl.style.fontWeight = 'bold';
+          countdownEl.style.color = '#ff6b6b';
+          countdownEl.style.marginTop = '4px';
+          info.appendChild(countdownEl);
+        }
+
+        item.appendChild(info);
+
+        if (!isMatchingAvailable()) {
+          const isFuture = nowMs < dTsMs;
+          const hideTime = isFuture && !isCheckinClosed();
+          if (!hideTime) {
+            const timeEl = document.createElement('div');
+            timeEl.className = 'date-time';
+            timeEl.textContent = formatDateItemTime(dTsMs);
+            item.appendChild(timeEl);
+          }
+        }
+
+        if (!d.isBreak && !isMystery && !d.couldNotFind && isMatchingAvailable()) {
+          const interestedUuids = currentUser.InterestedIn ? currentUser.InterestedIn.split(',').map(u => u.trim()) : [];
+          const isChecked = d.partner && d.partner.uuid && interestedUuids.includes(d.partner.uuid);
+
+          const checkboxLabel = document.createElement('label');
+          checkboxLabel.className = 'match-checkbox-label';
+          checkboxLabel.style.display = 'flex';
+          checkboxLabel.style.alignItems = 'center';
+          checkboxLabel.style.gap = '6px';
+          checkboxLabel.style.flexShrink = '0';
+          checkboxLabel.style.cursor = 'pointer';
+          checkboxLabel.style.color = '#ff6b6b';
+          checkboxLabel.style.fontSize = '0.85rem';
+          checkboxLabel.style.fontWeight = 'bold';
+
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.className = 'match-checkbox';
+          checkbox.checked = isChecked;
+          if (isChecked) {
+            checkbox.disabled = true;
+            checkbox.style.cursor = 'default';
+            checkboxLabel.style.cursor = 'default';
+            checkboxLabel.style.opacity = '0.6';
+          } else {
+            checkbox.style.cursor = 'pointer';
+          }
+          checkbox.style.width = '16px';
+          checkbox.style.height = '16px';
+
+          // Prevent click on checkbox/label from opening the date profile overlay
+          checkbox.addEventListener('click', (e) => e.stopPropagation());
+          checkboxLabel.addEventListener('click', (e) => e.stopPropagation());
+
+          checkbox.addEventListener('change', async (e) => {
+            e.stopPropagation();
+            const checked = checkbox.checked;
+            checkbox.disabled = true;
+            await handleMatchCheckboxChange(d.partner?.uuid, checked);
+            if (!checked && !checkbox.disabled) {
+               checkbox.disabled = false;
+            }
+          });
+
+          checkboxLabel.appendChild(checkbox);
+          checkboxLabel.appendChild(document.createTextNode('Interested'));
+          item.appendChild(checkboxLabel);
+        }
+        datesList.appendChild(item);
+      });
+      datesSection.style.display = 'block';
+      const _subtextEl = document.getElementById('datesSectionSubtext');
+
+
+      if (!nextDateEl || !nextDateObj) {
+        hideFindPersonPrompt();
+        // All date slots are in the past — matching can now be offered.
+        _allDatesPast = true;
+        // Only show All Done when we already know the event is finished (_datesFinished set by pollSchedule).
+        // Check-in period must be closed to consider the event finished.
+        if (_datesFinished) {
+          showAllDoneDialog();
+          return;
+        }
+      } else {
+        // If we have an active/upcoming date again, hide/reset the all-done message.
+        allDoneDismissed = false;
+        _datesFinished = false;
+        _allDatesPast = false;
+        hideAllDoneDialog();
+      }
+
+      // Pad the list with mystery '?' rows while check-in remains open.
+      // Infer expected partner sex from viewer's sex (opposite gender in standard speed dating).
+      if (!isMatchingAvailable() && !isCheckinClosed()) {
+        const _viewerSex = currentUser && currentUser.Sex;
+        const _padWoman = _viewerSex === 'Male';  // viewer is male → dates are female
+        const _lastTsMs = augmentedDates.length > 0 ? augmentedDates[augmentedDates.length - 1].timestampMs : Date.now();
+        for (let _pi = augmentedDates.length; _pi < DATES_LIST_SIZE; _pi++) {
+          const padTsMs = _lastTsMs + (_pi - augmentedDates.length + 1) * currentSlotMs;
+          datesList.appendChild(createMysteryDateItem(padTsMs, _padWoman, false, false, checkinOpen));
+        }
+      }
+
+      if (!_alarmNoticeShownOnce) {
+        showAlarmNotice();
+      }
+
+      if (nextDateEl && nextDateObj) {
+        function updateDateCountdown() {
+          const now = window._getNow();
+          const checkinClosedNow = isCheckinClosed();
+          const checkinOpenNow = isCheckinOpen();
+          if (checkinClosedNow !== _lastKnownCheckinClosed) {
+            _lastKnownCheckinClosed = checkinClosedNow;
+            if (lastKnownDates) {
+              renderDates(lastKnownDates);
+              return;
+            }
+          }
+          if (checkinOpenNow !== _lastKnownCheckinOpen) {
+            _lastKnownCheckinOpen = checkinOpenNow;
+            if (lastKnownDates) {
+              renderDates(lastKnownDates);
+              return;
+            }
+          }
+          const countdownEl = nextDateEl.querySelector('.date-countdown');
+
+          // Check slot end before the countdownEl guard: couldNotFind date items have no
+          // .date-countdown in the DOM, but must still trigger a re-render when their slot
+          // finishes so the next date's find-person dialog opens without waiting for a poll.
+          if (now >= nextDateObj.timestampMs) {
+            const remaining = nextDateObj.endTsMs - now;
+            if (remaining <= 0) {
+              hideFindPersonPrompt();
+              if (lastKnownDates) {
+                renderDates(lastKnownDates);
+              } else {
+                if (countdownEl) countdownEl.textContent = '0m 0s';
+                if (dateCountdownInterval) { clearInterval(dateCountdownInterval); dateCountdownInterval = null; }
+              }
+              return;
+            }
+          }
+
+          if (now < nextDateObj.timestampMs) {
+            const startRemaining = nextDateObj.timestampMs - now;
+            if (countdownEl) countdownEl.textContent = `Starts in ${formatDateListCountdown(startRemaining)}`;
+
+            if (!nextDateObj.isBreak) {
+              const thresholdMs = getPreStartDateThresholdMs();
+              if (startRemaining <= thresholdMs) {
+                if (!activeFindPrompt || activeFindPrompt.key !== toDateKey(nextDateObj)) {
+                  showFindPersonPrompt(nextDateObj, now);
+                }
+              }
+            }
+          } else {
+            // remaining > 0 is guaranteed here (remaining <= 0 already returned above)
+            const remaining = nextDateObj.endTsMs - now;
+            const m = Math.floor(remaining / 60000);
+            const s = Math.floor((remaining % 60000) / 1000);
+            if (countdownEl) countdownEl.textContent = `Ends in ${m}m ${s}s`;
+
+            // Always check if the NEXT date is about to start, regardless of whether we are currently in a break or a real date
+            const upcomingDate = augmentedDates.find(d => now < d.timestampMs);
+            let upcomingTriggered = false;
+            
+            if (upcomingDate && !upcomingDate.isBreak) {
+              const startRemaining = upcomingDate.timestampMs - now;
+              const thresholdMs = getPreStartDateThresholdMs();
+              if (startRemaining <= thresholdMs) {
+                upcomingTriggered = true;
+                if (!activeFindPrompt || activeFindPrompt.key !== toDateKey(upcomingDate)) {
+                  showFindPersonPrompt(upcomingDate, now);
+                }
+              }
+            }
+
+            // Only process the CURRENT active date if the UPCOMING date hasn't triggered its pre-start modal yet
+            if (!upcomingTriggered && !nextDateObj.isBreak) {
+              if (nextDateObj.promptDismissed && !nextDateObj.found) {
+                // If it was already dismissed (e.g. by clicking "I can't find them"), but the prompt is
+                // still active on screen, auto-close it when 20% mark is reached.
+                if (activeFindPrompt && activeFindPrompt.key === toDateKey(nextDateObj)) {
+                  if (!window.FAST_MODE && isInFinalTwentyPercent(nextDateObj, now)) {
+                    const autoCloseMs = findPersonDialogAutoCloseMs(nextDateObj);
+                    if (!activeFindPrompt.openedAtMs || activeFindPrompt.openedAtMs < autoCloseMs) {
+                      findPromptDismissedKeys.add(toDateKey(nextDateObj));
+                      hideFindPersonPrompt();
+                    }
+                  }
+                }
+              } else {
+                if (!window.FAST_MODE && isInFinalTwentyPercent(nextDateObj, now)) {
+                  const autoCloseMs = findPersonDialogAutoCloseMs(nextDateObj);
+                  if (!activeFindPrompt || !activeFindPrompt.openedAtMs || activeFindPrompt.openedAtMs < autoCloseMs) {
+                    findPromptDismissedKeys.add(toDateKey(nextDateObj));
+                    hideFindPersonPrompt();
+                    return;
+                  }
+                }
+                if (!activeFindPrompt || activeFindPrompt.key !== toDateKey(nextDateObj)) {
+                  showFindPersonPrompt(nextDateObj, now);
+                }
+              }
+            }
+          }
+
+          if (activeFindPrompt) {
+            renderCantFindButton(now);
+            renderFindPersonTimer(now);
+          }
+        }
+
+        updateDateCountdown();
+        dateCountdownInterval = setInterval(updateDateCountdown, 1000);
+
+        if (currentActiveDateMs !== nextDateObj.timestampMs) {
+          currentActiveDateMs = nextDateObj.timestampMs;
+          setTimeout(() => {
+            nextDateEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 100);
+        }
+      }
+    }
+    window.renderDates = renderDates;
+
+    async function pollSchedule() {
+      // Skip if a request is already in-flight — the setInterval fires regardless of
+      // completion time, so on slow servers multiple overlapping requests can stack up.
+      if (_schedulePollInFlight) return;
+      _schedulePollInFlight = true;
+      // Tracks whether this poll received a schedulePending signal from the server.
+      // Used in the finally block to suppress the client-side All Done fallback while
+      // the server is still computing the user's schedule in the background.
+      let _schedPending = false;
+      try {
+        const res = await apiFetch(`/api/schedule/${uuid}`);
+        const data = await res.json();
+        if (typeof data.checkinClosed === 'boolean') {
+          _scheduleCheckinClosed = data.checkinClosed;
+        }
+        if (res.ok && data.dates) {
+          if (data.slotMs) {
+            currentSlotMs = data.slotMs;
+          }
+          // If the server is still computing this user's schedule in the background
+          // (race: user just checked in), defer All Done evaluation entirely and just
+          // render the (empty) dates section.  The response is not cached server-side
+          // so the very next poll will see the freshly-written rows.
+          if (data.schedulePending) {
+            _schedPending = true;
+            renderDates(data.dates);
+            setDatesCalloutVisible(true);
+            maybeShowSubGroupDialog(currentUser);
+            return;
+          }
+
+          // Detect all-done before rendering so that showAlarmNotice() inside renderDates()
+          // is suppressed via the _datesFinished guard if we already know the event is over.
+          //
+          // _clientAllDone: safety-net for the edge case where the server hasn't yet flagged
+          // checkinClosed but the client clock says the window has closed and the user has no
+          // dates at all (e.g. they registered but were never scheduled).
+          const _clientAllDone = !data.checkinClosed && data.dates.length === 0 && currentUser &&
+            currentUser.EventDate && currentUser.EventTime &&
+            (() => {
+              const [ey, emo, ed] = currentUser.EventDate.split('-').map(Number);
+              const [eh, em] = currentUser.EventTime.split(':').map(Number);
+              return window._getNow() > Date.UTC(ey, emo - 1, ed, eh, em, 0, 0) + CHECKIN_CLOSES_AFTER;
+            })();
+
+          // The server may return checkinClosed:true while some dates are still upcoming
+          // (edge case in scheduling).  Only treat the event as truly finished when
+          // checkinClosed AND no date slot is still active or in the future.
+          const hasActiveFutureDates = data.dates.some(d => {
+            const slotStart = new Date(d.Timestamp || d.timestamp).getTime();
+            return window._getNow() < slotStart + currentSlotMs;
+          });
+          const _serverAllDone = data.checkinClosed && !hasActiveFutureDates;
+
+          if (data.removed || _serverAllDone || _clientAllDone) {
+            _datesFinished = true;
+            _allDatesPast = true;
+          } else {
+            _datesFinished = false;
+          }
+
+          // Instructions can now be shown (if not all-done and not matching).
+          renderDates(data.dates);
+          if (isMatchingAvailable()) {
+            hideAllDoneDialog();
+            hideSubGroupDialog();
+            setDatesCalloutVisible(false);
+          } else if (data.removed) {
+            showAllDoneDialog();
+          } else if (_serverAllDone) {
+            // Server confirmed: check-in closed and all date slots are in the past.
+            showAllDoneDialog();
+          } else if (_clientAllDone) {
+            showAllDoneDialog();
+          } else {
+            hideAllDoneDialog();
+            // Not all done: trigger Instructions dialog if it was waiting for the first poll.
+            setDatesCalloutVisible(true);
+            maybeShowSubGroupDialog(currentUser);
+          }
+
+          if (isMatchingAvailable() && !_chooseMatchesDialogShown) {
+            const isMatchStatus = currentUser && currentUser.Status && currentUser.Status.startsWith('3_');
+            const isRemoved = data.removed || (currentUser && currentUser.RemovedFromSchedule === 'true');
+            const hasMatchesToSelect = !data.dates || data.dates.length === 0 || data.dates.some(d => !d.isBreak && !d.couldNotFind);
+            if (isMatchStatus && !isRemoved && hasMatchesToSelect) {
+              _chooseMatchesDialogShown = true;
+              hideSubGroupDialog();
+              hideAllDoneDialog();
+              setDatesCalloutVisible(false);
+              chooseMatchesDialog.style.display = 'flex';
+            }
+          }
+        }
+      } catch (_) { /* silently ignore — will retry on next interval */ }
+      finally {
+        _schedulePollInFlight = false;
+        
+        if (!_firstSchedulePollDone) {
+          _firstSchedulePollDone = true;
+          const loadingEl = document.querySelector('.loading');
+          const contentEl = document.getElementById('content');
+          if (loadingEl) loadingEl.style.display = 'none';
+          if (contentEl) contentEl.style.display = 'block';
+        }
+
+        // Client-side fallback: if the user checked in (2_ARRIVED) but has never
+        // received any scheduled dates, and the check-in window has now closed,
+        // show All Done even when the server is temporarily unreachable.
+        // The _hadScheduledDates guard prevents triggering this for users who have
+        // real dates that are still active or upcoming.
+        // _schedPending guard: the server just told us scheduling is still in-flight
+        // (the user just arrived) — don't conclude All Done until we have a definitive
+        // response.
+        if (!_datesFinished && !_hadScheduledDates && !_schedPending && currentUser?.Status === '2_ARRIVED') {
+          const ed = currentUser.EventDate, et = currentUser.EventTime;
+          if (ed && et) {
+            const [ey, emo, eday] = ed.split('-').map(Number);
+            const [eh, em] = et.split(':').map(Number);
+            if (window._getNow() > Date.UTC(ey, emo - 1, eday, eh, em) + CHECKIN_CLOSES_AFTER) {
+              _datesFinished = true;
+              showAllDoneDialog();
+            }
+          }
+        }
+      }
+    }
+    window.pollSchedule = pollSchedule;
+
+    function startSchedulePolling() {
+      if (schedulePollInterval) return;
+      if (_datesFinished && !isMatchingAvailable()) return;
+      pollSchedule();
+      schedulePollInterval = setInterval(pollSchedule, SCHEDULE_POLLING_INTERVAL);
+    }
+
+    function stopSchedulePolling() {
+      if (schedulePollInterval) { clearInterval(schedulePollInterval); schedulePollInterval = null; }
+      datesSection.style.display = 'none';
+      hideAllDoneDialog();
+    }
+
+    // Countdown for unconfirmed users — deadline is 24 h before the event.
+    function showConfirmCountdown(user) {
+      confirmationClosed = false;
+      if (confirmCountdownInterval) clearInterval(confirmCountdownInterval);
+      confirmNote.style.display = 'none';
+      checkinWarning.style.display = 'none';
+      confirmBtn.style.display = 'block';
+
+      if (!user.EventDate || !user.EventTime) {
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = 'Confirm Attendance';
+        if (!_confirmAttendanceInFlight) {
+          confirmAttendanceModalBtn.textContent = 'Confirm Attendance';
+        }
+        return;
+      }
+
+      setEventDateTimeVisible(true);
+
+      const [year, month, day] = user.EventDate.split('-').map(Number);
+      const [h, m] = user.EventTime.split(':').map(Number);
+      const eventDT = new Date(Date.UTC(year, month - 1, day, h, m, 0, 0));
+      const deadline = new Date(eventDT.getTime() - ATTENDANCE_CONFIRMATION_EXPIRES);
+
+      function updateConfirmCountdown() {
+        const now = window._getNow();
+        const checkinCloseTimeMs = eventDT.getTime() + CHECKIN_CLOSES_AFTER;
+        const checkinClosed = now >= checkinCloseTimeMs;
+        const remaining = deadline.getTime() - now;
+
+        if (checkinClosed) {
+          if (confirmCountdownInterval) { clearInterval(confirmCountdownInterval); confirmCountdownInterval = null; }
+          confirmationClosed = true;
+          hideConfirmAttendanceDialog();
+          confirmBtn.disabled = true;
+          confirmBtn.textContent = 'Check in closed';
+          const closeTimeDate = new Date(checkinCloseTimeMs);
+          const dayNum = closeTimeDate.getDate();
+          const monthStr = MONTH_ABBR[closeTimeDate.getMonth()];
+          const yearNum = closeTimeDate.getFullYear();
+          confirmNote.innerHTML = `Closed ${dayNum} ${monthStr} ${yearNum} at ${formatTime12h(closeTimeDate)}<br>
+            <div class="closed-warning-box">
+              Unfortunately the event started too long ago for you to still be able to join.<br><br>
+              This is because there is not enough time left before the event ends to schedule your dates with all attendees.<br><br>
+              Please sign up to one of our future events: <a href="${getNextEventSignupUrl()}" target="_blank" style="color:#ff6b6b;text-decoration:underline;">${getNextEventSignupUrl()}</a><br><br>
+              Our volunteer team appreciates your understanding.
+            </div>`;
+          confirmNote.style.display = 'block';
+          locationEl.style.display = 'none';
+          if (eventCountdownInterval) { clearInterval(eventCountdownInterval); eventCountdownInterval = null; }
+          eventCountdown.style.display = 'none';
+          return;
+        }
+
+        if (remaining <= 0) {
+          if (confirmCountdownInterval) { clearInterval(confirmCountdownInterval); confirmCountdownInterval = null; }
+          confirmationClosed = true;
+          hideConfirmAttendanceDialog();
+          confirmBtn.disabled = true;
+          confirmBtn.textContent = 'Attendance confirmation closed';
+          const dayNum = deadline.getDate();
+          const monthStr = MONTH_ABBR[deadline.getMonth()];
+          const yearNum = deadline.getFullYear();
+          confirmNote.innerHTML = `Closed ${dayNum} ${monthStr} ${yearNum} at ${formatTime12h(deadline)}<br>
+            <div class="closed-warning-box">
+              To ensure the event runs smoothly for all attendees, attendance confirmation was required in advance to balance genders and schedule dates.<br><br>
+              Please email us ASAP if you would still like to attend this event, or to request attendance at a future event.<br><br>
+              <strong>Unfortunately, attendance at this event is not possible without prior email approval from our volunteer team</strong> as all dates have already been scheduled without you and our team would need to re-run the scheduler.<br><br>
+              Thank you for your understanding.
+            </div>`;
+          confirmNote.style.display = 'block';
+          locationEl.style.display = 'none'; // hide when window closes (runtime transition)
+          if (eventCountdownInterval) { clearInterval(eventCountdownInterval); eventCountdownInterval = null; }
+          eventCountdown.style.display = 'none';
+          return;
+        }
+        const d = Math.floor(remaining / 86400000);
+        const hh = Math.floor((remaining % 86400000) / 3600000);
+        const mm = Math.floor((remaining % 3600000) / 60000);
+        const ss = Math.floor((remaining % 60000) / 1000);
+        const parts = [];
+        if (d > 0) parts.push(`${d}d`);
+        if (hh > 0 || d > 0) parts.push(`${hh}h`);
+        if (mm > 0 || hh > 0 || d > 0) parts.push(`${mm}m`);
+        parts.push(`${ss}s`);
+        locationEl.style.display = 'none';
+        confirmBtn.disabled = false;
+        const confirmText = `Confirm Attendance\n(closes in ${parts.join(' ')})`;
+        confirmBtn.textContent = confirmText;
+        if (!_confirmAttendanceInFlight) {
+          confirmAttendanceModalBtn.textContent = confirmText;
+        }
+        const dayNum = deadline.getDate();
+        const monthStr = MONTH_ABBR[deadline.getMonth()];
+        confirmNote.textContent = `Attendance confirmation closes ${dayNum} ${monthStr} at ${formatTime12h(deadline)}`;
+        confirmNote.style.display = 'block';
+      }
+
+      updateConfirmCountdown();
+      confirmCountdownInterval = setInterval(updateConfirmCountdown, COUNTDOWN_UPDATE_INTERVAL);
+    }
+
+    function showCheckinCountdown(user) {
+      if (countdownInterval) clearInterval(countdownInterval);
+      if (confirmCountdownInterval) { clearInterval(confirmCountdownInterval); confirmCountdownInterval = null; }
+      confirmNote.style.display = 'none';
+      confirmBtn.style.display = 'block';
+      confirmBtn.disabled = true;
+      checkinCloseNote.style.display = 'none';
+
+      let checkinOpenTime = null;
+      checkinCloseTime = null;
+      if (user.EventDate && user.EventTime) {
+        const [year, month, day] = user.EventDate.split('-').map(Number);
+        const [h, m] = user.EventTime.split(':').map(Number);
+        const eventDT = new Date(Date.UTC(year, month - 1, day, h, m, 0, 0));
+        checkinOpenTime = new Date(eventDT.getTime() - CHECKIN_OPENS_BEFORE);
+        checkinCloseTime = new Date(eventDT.getTime() + CHECKIN_CLOSES_AFTER);
+        setEventDateTimeVisible(true);
+      }
+
+      function updateCountdown() {
+        if (_checkinInFlight) {
+          return;
+        }
+        if (!checkinOpenTime) {
+          arrivedMode = true;
+          checkinWarningBeforeLocation.style.display = 'none';
+          checkinWarningAfterLocation.style.display = 'none';
+          if (!_checkinInFlight && !_pendingCheckin) {
+            confirmBtn.disabled = false;
+          }
+          const locText = user.Location ? user.Location.replace(/https?:\/\/[^\s]+/g, '').trim() : '';
+          confirmBtn.textContent = locText
+            ? `I've arrived at:\n${locText}`
+            : "I've arrived";
+          checkinCloseNote.style.display = 'none';
+          locationEl.style.display = user.Location ? 'block' : 'none';
+          checkinWarning.style.display = 'block';
+          return;
+        }
+
+        const now = window._getNow();
+        const openRemaining = checkinOpenTime.getTime() - now;
+        const closeRemaining = checkinCloseTime.getTime() - now;
+
+        if (closeRemaining <= 0) {
+          // Check-in window has closed
+          if (datesSection.style.display === 'block' && !_hadScheduledDates) {
+            datesSection.style.display = 'none';
+          }
+          if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+          arrivedMode = false;
+          confirmBtn.disabled = true;
+          confirmBtn.textContent = 'Check in closed';
+          locationEl.style.display = 'none'; // hide when window closes (runtime transition)
+          checkinWarning.style.display = 'none';
+          checkinWarningBeforeLocation.style.display = 'none';
+          checkinWarningAfterLocation.style.display = 'none';
+          hideSubGroupDialog();
+          const dayNum = checkinCloseTime.getDate();
+          const monthStr = MONTH_ABBR[checkinCloseTime.getMonth()];
+          const yearNum = checkinCloseTime.getFullYear();
+          checkinCloseNote.innerHTML = `Closed ${dayNum} ${monthStr} ${yearNum} at ${formatTime12h(checkinCloseTime)}<br>
+            <div class="closed-warning-box">
+              Unfortunately the event started too long ago for you to still be able to join.<br><br>
+              This is because there is not enough time left to schedule your dates with all attendees.<br><br>
+              Please sign up to one of our future events: <a href="${getNextEventSignupUrl()}" target="_blank" style="color:#ff6b6b;text-decoration:underline;">${getNextEventSignupUrl()}</a><br><br>
+              Our volunteer team appreciates your understanding.
+            </div>`;
+          checkinCloseNote.style.display = 'block';
+        } else if (openRemaining <= 0) {
+          // Check-in window is open
+          let eventStartMs = 0;
+          if (user.EventDate && user.EventTime) {
+            const [y, mo, d] = user.EventDate.split('-').map(Number);
+            const [hUtc, mUtc] = user.EventTime.split(':').map(Number);
+            eventStartMs = Date.UTC(y, mo - 1, d, hUtc, mUtc, 0);
+          }
+          if (datesSection.style.display === 'block' && !_hadScheduledDates) {
+            datesSection.style.display = 'none';
+          }
+          arrivedMode = true;
+          locationEl.style.display = user.Location ? 'block' : 'none';
+          checkinWarning.style.display = 'block';
+          checkinWarningBeforeLocation.style.display = 'block';
+          checkinWarningAfterLocation.style.display = 'block';
+          if (!_checkinInFlight && !_pendingCheckin) {
+            confirmBtn.disabled = false;
+          }
+          const mm = Math.floor(closeRemaining / 60000);
+          const ss = Math.floor((closeRemaining % 60000) / 1000);
+          const timeParts = mm > 0 ? `${mm}m ${ss}s` : `${ss}s`;
+          const locText = user.Location ? user.Location.replace(/https?:\/\/[^\s]+/g, '').trim() : '';
+          confirmBtn.textContent = locText
+            ? `I've arrived at:\n${locText}\n(check in closes in ${timeParts})`
+            : `I've arrived\n(check in closes in ${timeParts})`;
+          checkinCloseNote.textContent = `Check in closes at ${formatTime12h(checkinCloseTime)}`;
+          checkinCloseNote.style.display = 'block';
+        } else {
+          // Not yet open — show countdown to check-in open time in button
+          if (!_hadScheduledDates) {
+            renderPlaceholderDates(user, true);
+          }
+          arrivedMode = false;
+          locationEl.style.display = user.Location ? 'block' : 'none';
+          checkinWarning.style.display = 'block';
+          checkinWarningBeforeLocation.style.display = 'none';
+          checkinWarningAfterLocation.style.display = 'none';
+          checkinCloseNote.textContent = `Check in closes at ${formatTime12h(checkinCloseTime)}`;
+          checkinCloseNote.style.display = 'block';
+          const d = Math.floor(openRemaining / 86400000);
+          const hh = Math.floor((openRemaining % 86400000) / 3600000);
+          const mm = Math.floor((openRemaining % 3600000) / 60000);
+          const ss = Math.floor((openRemaining % 60000) / 1000);
+          const parts = [];
+          if (d > 0) parts.push(`${d}d`);
+          if (hh > 0 || d > 0) parts.push(`${hh}h`);
+          if (mm > 0 || hh > 0 || d > 0) parts.push(`${mm}m`);
+          parts.push(`${ss}s`);
+          const dayNum = checkinOpenTime.getDate();
+          const monthStr = MONTH_ABBR[checkinOpenTime.getMonth()];
+          const timeStr = `${dayNum} ${monthStr} at ${formatTime12h(checkinOpenTime)}`;
+          confirmBtn.textContent = `Check in opens ${timeStr}\n(${parts.join(' ')})`;
+        }
+      }
+
+      updateCountdown();
+      countdownInterval = setInterval(updateCountdown, COUNTDOWN_UPDATE_INTERVAL);
+    }
+
+    function renderPlaceholderDates(user, includeCountdown = true) {
+      if (!user || !user.EventDate || !user.EventTime) return;
+      
+      const checkinClosed = isCheckinClosed();
+      const checkinOpen = isCheckinOpen();
+      // Avoid re-rendering if already showing the requested mode
+      if (datesSection.style.display === 'block' && window._lastPlaceholderMode === includeCountdown && window._lastPlaceholderCheckinClosed === checkinClosed && window._lastPlaceholderCheckinOpen === checkinOpen) {
+         return;
+      }
+      window._lastPlaceholderMode = includeCountdown;
+      window._lastPlaceholderCheckinClosed = checkinClosed;
+      window._lastPlaceholderCheckinOpen = checkinOpen;
+
+      if (checkinClosed) {
+        datesList.innerHTML = '';
+        datesSection.style.display = 'none';
+        setDatesCalloutVisible(false);
+        if (window.firstPlaceholderInterval) {
+          clearInterval(window.firstPlaceholderInterval);
+          window.firstPlaceholderInterval = null;
+        }
+        return;
+      }
+
+      const [y, mo, d] = user.EventDate.split('-').map(Number);
+      const [hUtc, mUtc] = user.EventTime.split(':').map(Number);
+      const eventStartMs = Date.UTC(y, mo - 1, d, hUtc, mUtc, 0);
+
+      datesList.innerHTML = '';
+      const _viewerSex = user.Sex;
+      const _padWoman = _viewerSex === 'Male';
+      
+      for (let _pi = 0; _pi < DATES_LIST_SIZE; _pi++) {
+        const padTsMs = eventStartMs + _pi * currentSlotMs;
+        datesList.appendChild(createMysteryDateItem(padTsMs, _padWoman, includeCountdown && _pi === 0, includeCountdown && _pi === 0, checkinOpen));
+      }
+      
+      datesSection.style.display = 'block';
+      setDatesCalloutVisible(false);
+      
+      if (window.firstPlaceholderInterval) {
+        clearInterval(window.firstPlaceholderInterval);
+        window.firstPlaceholderInterval = null;
+      }
+      
+      if (includeCountdown) {
+        function updateFirstCountdown() {
+          const cdEl = document.getElementById('firstPlaceholderCountdown');
+          if (!cdEl) {
+            clearInterval(window.firstPlaceholderInterval);
+            window.firstPlaceholderInterval = null;
+            return;
+          }
+          const now = window._getNow();
+          if (isCheckinOpen() !== window._lastPlaceholderCheckinOpen) {
+            renderPlaceholderDates(user, includeCountdown);
+            return;
+          }
+          if (isCheckinClosed() !== window._lastPlaceholderCheckinClosed) {
+            renderPlaceholderDates(user, includeCountdown);
+            return;
+          }
+          const startRemaining = eventStartMs - now;
+          if (startRemaining <= 0) {
+             cdEl.textContent = `Starts in 0m 0s`;
+             clearInterval(window.firstPlaceholderInterval);
+             window.firstPlaceholderInterval = null;
+          } else {
+             cdEl.textContent = `Starts in ${formatDateListCountdown(startRemaining)}`;
+          }
+        }
+        
+        updateFirstCountdown();
+        window.firstPlaceholderInterval = setInterval(updateFirstCountdown, 1000);
+      }
+    }
+
+    // Independent countdown to event start — shown for ALL users until the event begins.
+    function startEventCountdown(user) {
+      if (eventCountdownInterval) clearInterval(eventCountdownInterval);
+      eventCountdown.style.display = 'none';
+
+      if (!user.EventDate || !user.EventTime) return;
+
+      const [year, month, day] = user.EventDate.split('-').map(Number);
+      const [h, m] = user.EventTime.split(':').map(Number);
+      const eventDT = new Date(Date.UTC(year, month - 1, day, h, m, 0, 0));
+
+      function updateEventCountdown() {
+        const remaining = eventDT.getTime() - window._getNow();
+        if (remaining <= 0) {
+          if (eventCountdownInterval) { clearInterval(eventCountdownInterval); eventCountdownInterval = null; }
+          eventCountdown.style.display = 'none';
+          maybeShowSubGroupDialog(currentUser || user);
+          return;
+        }
+        const d = Math.floor(remaining / 86400000);
+        const hh = Math.floor((remaining % 86400000) / 3600000);
+        const mm = Math.floor((remaining % 3600000) / 60000);
+        const ss = Math.floor((remaining % 60000) / 1000);
+        const parts = [];
+        if (d > 0) parts.push(`${d}d`);
+        if (hh > 0 || d > 0) parts.push(`${hh}h`);
+        if (mm > 0 || hh > 0 || d > 0) parts.push(`${mm}m`);
+        parts.push(`${ss}s`);
+        eventCountdownValue.textContent = parts.join(' ');
+        eventCountdown.style.display = 'block';
+      }
+
+      updateEventCountdown();
+      eventCountdownInterval = setInterval(updateEventCountdown, COUNTDOWN_UPDATE_INTERVAL);
+    }
+
+    // ── Check-in PATCH + post-check-in actions ───────────────────────────────
+    // Called either directly (when Instructions dialog is disabled/dismissed) or
+    // from subGroupAgreeBtn after the user clicks "I agree, show me my dates".
+    async function doCheckin() {
+      _checkinInFlight = true;
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = 'Checking in\u2026';
+      // Retry network failures — the PATCH is idempotent (setting status to 2_ARRIVED),
+      // so retrying is safe.  Only TypeError ("Failed to fetch") is retried; server-side
+      // errors (non-2xx responses) are surfaced immediately.
+      const MAX_ATTEMPTS = 3;
+      let lastErr;
+      for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+        if (attempt > 0) {
+          // Abort if the check-in window has already closed before retrying.
+          if (checkinCloseTime && window._getNow() >= checkinCloseTime.getTime()) break;
+          await new Promise(r => setTimeout(r, 800));
+          if (checkinCloseTime && window._getNow() >= checkinCloseTime.getTime()) break;
+          confirmBtn.textContent = `Checking in\u2026 (retry ${attempt})`;
+        }
+        try {
+          const res = await apiFetch(`/api/users/${uuid}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: '2_ARRIVED' }),
+          });
+          if (!res.ok) {
+            let errMsg = 'Failed to check in';
+            try { const d = await res.json(); errMsg = d.error || errMsg; } catch (_) { }
+            throw new Error(errMsg);
+          }
+          arrivedMode = false;
+          confirmBtn.disabled = true;
+          confirmBtn.textContent = '\u2713 Checked in - your first date will start soon!';
+          if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+          setDatesCalloutVisible(true);
+          checkinCloseNote.style.display = 'none';
+          checkinWarning.style.display = 'none';
+          if (currentUser) currentUser.Status = '2_ARRIVED';
+          setEventDateTimeVisible(false);
+          startSchedulePolling();
+          showAlarmNotice();
+          eventCountdown.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          _checkinInFlight = false;
+          return;
+        } catch (err) {
+          lastErr = err;
+          // Only retry transient network errors; surface server errors immediately.
+          if (!(err instanceof TypeError)) break;
+        }
+      }
+      _pendingCheckin = false;
+      _checkinInFlight = false;
+      showCheckinCountdown(currentUser);
+      showStatus('error', `\u2717 ${lastErr.message}`);
+    }
+
+    confirmBtn.addEventListener('click', async () => {
+      if (confirmBtn.disabled) return;
+      initBackgroundAudio();
+
+      if (arrivedMode) {
+        confirmBtn.disabled = true;
+        // Show Instructions before checking in. The PATCH to 2_ARRIVED is deferred until
+        // the user clicks "I agree, show me my dates" (handled in subGroupAgreeBtn handler).
+        // The agree cookie is intentionally NOT checked here — the dialog must always show
+        // so it is impossible to check in without clicking I Agree on the current page load.
+        if (!_datesFinished && window.__disableSubGroupDialog !== true && currentUser) {
+          _pendingCheckin = true;
+          subGroupDialogPending = true;
+          // The user is actively checking in — we know they are not all-done, so it is
+          // safe to open the Instructions dialog even if the first schedule poll has not
+          // yet resolved (which happens for 1_TICKET_CONFIRMED users whose polling only
+          // starts after the PATCH to 2_ARRIVED completes).
+          _firstSchedulePollDone = true;
+          if (hasBlockingOverlayOpen()) {
+            scheduleSubGroupDialogRetry();
+          } else {
+            showSubGroupDialog();
+          }
+        } else {
+          // Dialog disabled or dates finished — proceed with check-in immediately.
+          await doCheckin();
+        }
+      } else {
+        if (confirmationClosed) return;
+        showConfirmAttendanceDialog();
+      }
+    });
+
+    async function loadUser() {
+      if (!uuid) {
+        msg.className = 'error';
+        msg.textContent = '✗ UUID is required. Use ?uuid=<user-uuid>';
+        loading.style.display = 'none';
+        return;
+      }
+
+      try {
+        await ensureConstantsLoaded();
+        await checkAdminAuth();
+        const res = await apiFetch(`/api/users/${uuid}`);
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || 'Failed to load user');
+        }
+
+        const { user } = data;
+
+        // Display user data
+        // name.textContent = user.FirstName || '(No name)';
+
+        // Personalise the "Your Dates" heading with the user's first name
+        const datesTitleEl = document.getElementById('datesSectionTitle');
+        if (datesTitleEl && user.FirstName) {
+          datesTitleEl.textContent = `${user.FirstName}'s Sub Group 2 Dates`;
+        }
+
+        if (user.EventDate) {
+          const [y, mo, d] = user.EventDate.split('-').map(Number);
+          // Derive local date from the full UTC timestamp so it matches the displayed local time.
+          const [hUtc, mUtc] = user.EventTime ? user.EventTime.split(':').map(Number) : [12, 0];
+          const formatted = new Date(Date.UTC(y, mo - 1, d, hUtc, mUtc, 0))
+            .toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+          eventDateEl.textContent = formatted;
+          // visibility is managed by state functions — do not show here
+        }
+
+        if (user.Location) {
+          const locString = user.Location.startsWith('Meeting point: ')
+            ? user.Location
+            : `Meeting point: ${user.Location}`;
+          const urlPattern = /https?:\/\/[^\s]+/g;
+          const urlMatch = locString.match(urlPattern);
+          if (urlMatch) {
+            // Replace each URL in the location string with a safe anchor element
+            locationEl.innerHTML = '';
+            let lastIndex = 0;
+            let match;
+            urlPattern.lastIndex = 0;
+            while ((match = urlPattern.exec(locString)) !== null) {
+              // Text before URL
+              if (match.index > lastIndex) {
+                locationEl.appendChild(document.createTextNode(locString.slice(lastIndex, match.index)));
+              }
+              // Anchor for URL — href validated to http/https only
+              const href = match[0].replace(/[<>"']/g, '');
+              const a = document.createElement('a');
+              a.href = href;
+              a.textContent = match[0];
+              a.target = '_blank';
+              a.rel = 'noopener noreferrer';
+              a.style.color = '#ff6b6b';
+              locationEl.appendChild(a);
+              lastIndex = match.index + match[0].length;
+            }
+            // Any trailing text after last URL
+            if (lastIndex < locString.length) {
+              locationEl.appendChild(document.createTextNode(locString.slice(lastIndex)));
+            }
+          } else {
+            locationEl.textContent = locString;
+          }
+          // visibility is managed by state functions — do not show here
+        }
+
+        if (user.EventTime) {
+          // EventTime is stored in UTC — convert to user's local timezone for display
+          const [hUtc, mUtc] = user.EventTime.split(':').map(Number);
+          const [ey, emo, ed] = user.EventDate ? user.EventDate.split('-').map(Number) : [2000, 1, 1];
+          const localDt = new Date(Date.UTC(ey, emo - 1, ed, hUtc, mUtc, 0));
+          const h = localDt.getHours();
+          const mStr = String(localDt.getMinutes()).padStart(2, '0');
+          const ampm = h >= 12 ? 'PM' : 'AM';
+          const h12 = h % 12 || 12;
+          eventTimeEl.textContent = `${h12}:${mStr} ${ampm}`;
+          // visibility is managed by state functions — do not show here
+        }
+
+        /*
+        if (user.PhotoData && user.PhotoData.startsWith('data:')) {
+          photo.src = user.PhotoData;
+          photo.style.display = 'block';
+        }
+
+        if (user.Description) {
+          descriptionEl.textContent = user.Description;
+          descriptionEl.style.display = 'block';
+        }
+        */
+
+        currentUser = user;
+        // Populate meeting point in inline callout
+        if (user.Location) {
+          const mpLine = datesCallout.querySelector('.meeting-point-line');
+          const mpText = datesCallout.querySelector('.meeting-point-text');
+          if (mpLine && mpText) {
+            mpText.textContent = user.Location;
+            mpLine.style.display = '';
+          }
+        }
+        setDatesCalloutVisible(false);
+
+        if (!user.EventDate || !user.EventTime) {
+          showStatus('error', '\u2717 Event date or time is missing for this profile — please contact the organiser');
+          loading.style.display = 'none';
+          content.style.display = 'block';
+          return;
+        }
+
+        if (user.Status === '1_TICKET_CONFIRMED') {
+          showCheckinCountdown(user);
+          loading.style.display = 'none';
+          content.style.display = 'block';
+        } else if (user.Status === '2_ARRIVED') {
+          if (confirmCountdownInterval) { clearInterval(confirmCountdownInterval); confirmCountdownInterval = null; }
+          confirmNote.style.display = 'none';
+          checkinWarning.style.display = 'none';
+          confirmBtn.style.display = 'block';
+          confirmBtn.disabled = true;
+          confirmBtn.textContent = '\u2713 Checked in - your first date will start soon!';
+          locationEl.style.display = user.Location ? 'block' : 'none';
+          setEventDateTimeVisible(false);
+          startSchedulePolling();
+          // DO NOT hide loading screen here. Waiting for first schedule poll to complete.
+        } else if (user.Status && user.Status.startsWith('3_')) {
+          if (confirmCountdownInterval) { clearInterval(confirmCountdownInterval); confirmCountdownInterval = null; }
+          confirmBtn.style.display = 'none';
+          confirmNote.style.display = 'none';
+          checkinCloseNote.style.display = 'none';
+          checkinWarning.style.display = 'none';
+          locationEl.style.display = 'none';
+          setEventDateTimeVisible(false);
+          if (eventCountdown) eventCountdown.style.display = 'none';
+          startSchedulePolling();
+          // DO NOT hide loading screen here. Waiting for first schedule poll to complete.
+        } else {
+          showConfirmCountdown(user);
+          loading.style.display = 'none';
+          content.style.display = 'block';
+        }
+        if (!confirmationClosed && (!user.Status || !user.Status.startsWith('3_'))) startEventCountdown(user);
+
+      } catch (err) {
+        msg.className = 'error';
+        msg.textContent = `✗ ${err.message}`;
+        loading.style.display = 'none';
+        content.style.display = 'block';
+      }
+    }
+
+    loadUser();
+
+    // Offline / Online detection
+    const offlineOverlay = document.getElementById('offlineOverlay');
+    const offlineRetryBtn = document.getElementById('offlineRetryBtn');
+    const offlineStatusText = document.getElementById('offlineStatusText');
+    let _offlineHeartbeatInterval = null;
+
+    function showOfflineOverlay() {
+      if (offlineOverlay) {
+        offlineOverlay.style.display = 'flex';
+      }
+      if (offlineStatusText) {
+        offlineStatusText.textContent = 'Waiting for connection...';
+      }
+      if (offlineRetryBtn) {
+        offlineRetryBtn.disabled = false;
+        offlineRetryBtn.textContent = 'Check Connection';
+      }
+      // Start auto-checking connection every 2.5s while overlay is visible
+      if (!_offlineHeartbeatInterval) {
+        _offlineHeartbeatInterval = setInterval(() => {
+          if (navigator.onLine) {
+            checkOnlineStatus();
+          }
+        }, 2500);
+      }
+    }
+
+    function hideOfflineOverlay() {
+      if (_offlineHeartbeatInterval) {
+        clearInterval(_offlineHeartbeatInterval);
+        _offlineHeartbeatInterval = null;
+      }
+      if (offlineOverlay) {
+        offlineOverlay.style.display = 'none';
+      }
+    }
+
+    let _checkOnlineInFlight = false;
+
+    async function checkOnlineStatus() {
+      if (offlineOverlay && offlineOverlay.style.display !== 'flex') {
+        return true;
+      }
+      if (_checkOnlineInFlight) return false;
+      _checkOnlineInFlight = true;
+
+      if (offlineStatusText) {
+        offlineStatusText.classList.remove('shake');
+        void offlineStatusText.offsetWidth; // trigger reflow
+        offlineStatusText.textContent = 'Checking connection...';
+      }
+      if (offlineRetryBtn) offlineRetryBtn.disabled = true;
+
+      const startTime = Date.now();
+
+      try {
+        const pingUrl = uuid ? `/api/schedule/${uuid}` : '/api/admin/auth-status';
+        // Any HTTP response (2xx, 3xx, 4xx, 5xx) confirms network layer reachability
+        const res = await apiFetch(pingUrl, { method: 'GET', cache: 'no-store' });
+        if (res) {
+          hideOfflineOverlay();
+          if (uuid && typeof pollSchedule === 'function' && schedulePollInterval) {
+            pollSchedule();
+          }
+          return true;
+        }
+      } catch (_) {
+        // Fallback: if browser says we are online, attempt auto-dismissal
+        if (navigator.onLine) {
+          hideOfflineOverlay();
+          if (uuid && typeof pollSchedule === 'function' && schedulePollInterval) {
+            pollSchedule();
+          }
+          return true;
+        }
+      } finally {
+        _checkOnlineInFlight = false;
+      }
+
+      const elapsed = Date.now() - startTime;
+      if (elapsed < 500) {
+        await new Promise(r => setTimeout(r, 500 - elapsed));
+      }
+
+      if (offlineStatusText) {
+        offlineStatusText.textContent = 'Still offline. Please check connection.';
+        offlineStatusText.classList.add('shake');
+      }
+      if (offlineRetryBtn) {
+        offlineRetryBtn.disabled = false;
+        offlineRetryBtn.textContent = 'Check Connection';
+      }
+      return false;
+    }
+
+    // Expose helpers for testing
+    window._showOfflineOverlay = showOfflineOverlay;
+    window._hideOfflineOverlay = hideOfflineOverlay;
+    window._checkOnlineStatus = checkOnlineStatus;
+    window._startFindPersonAlarm = startFindPersonAlarm;
+    window._stopFindPersonAlarm = stopFindPersonAlarm;
+    window._silenceActiveAlarm = silenceActiveAlarm;
+    window._alarmSilencedDateKeys = alarmSilencedDateKeys;
+    window.addEventListener('offline', () => {
+      showOfflineOverlay();
+    });
+
+    window.addEventListener('online', () => {
+      // Reconnect immediately, with staggered retries to handle mobile DNS/DHCP negotiation lag
+      checkOnlineStatus();
+      setTimeout(checkOnlineStatus, 1000);
+      setTimeout(checkOnlineStatus, 2500);
+    });
+
+    if (offlineRetryBtn) {
+      offlineRetryBtn.addEventListener('click', () => {
+        checkOnlineStatus();
+      });
+    }
+
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+      showOfflineOverlay();
+    }
+
+    // Close button for Find Person dialog
+    document.getElementById('findPersonCloseBtn').addEventListener('click', () => {
+      document.getElementById('findPersonOverlay').style.display = 'none';
+      if (silenceAlarmOverlay) silenceAlarmOverlay.style.display = 'none'; if (document.getElementById('findPersonCloseBtn')) document.getElementById('findPersonCloseBtn').style.display = '';
+      if (typeof stopFindPersonAlarm === 'function') {
+        stopFindPersonAlarm();
+      } else if (window._findPersonAlarmInterval) {
+        clearInterval(window._findPersonAlarmInterval);
+        window._findPersonAlarmInterval = null;
+      }
+      if (activeFindPrompt && activeFindPrompt.key) {
+        // Only permanently dismiss it if they close it DURING the actual date.
+        if (typeof window._getNow === 'function' && window._getNow() >= activeFindPrompt.timestampMs) {
+          findPromptDismissedKeys.add(activeFindPrompt.key);
+          alarmSilencedDateKeys.add(activeFindPrompt.key);
+        }
+      }
+      activeFindPrompt = null;
+    });
+
+    if (silenceAlarmOverlay) {
+      silenceAlarmOverlay.addEventListener('click', silenceActiveAlarm);
+      silenceAlarmOverlay.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          silenceActiveAlarm();
+        }
+      });
+    }
+
+    document.addEventListener('pointerdown', () => {
+      initBackgroundAudio();
+    }, { passive: true });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        requestScreenWakeLock();
+        const ctx = getAlarmAudioCtx();
+        if (ctx && typeof ctx.resume === 'function') {
+          ctx.resume().catch(() => {});
+        }
+        if (typeof updateDateCountdown === 'function') {
+          updateDateCountdown();
+        }
+      }
+    });
+
+    window._initBackgroundAudio = initBackgroundAudio;
+    window._requestScreenWakeLock = requestScreenWakeLock;
+
+  </script>
+</body>
+
+</html>
