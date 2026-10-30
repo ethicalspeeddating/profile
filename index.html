@@ -1121,6 +1121,11 @@
       ? ''
       : null;
 
+    let _slotMsExplicitlySet = false;
+    let currentSlotMs = (typeof window !== 'undefined' && typeof window.DATE_DURATION_MAX === 'number')
+      ? window.DATE_DURATION_MAX
+      : 10 * 60 * 1000;
+
     function getActiveBackendUrl() {
       if (_activeBackendUrl !== null) return _activeBackendUrl;
       const candidates = getCandidateBackendUrls();
@@ -1187,6 +1192,9 @@
             : getCandidateBackendUrls()[0];
         }
         applyBackendAssets(_activeBackendUrl);
+        if (!_slotMsExplicitlySet && typeof window.DATE_DURATION_MAX === 'number') {
+          currentSlotMs = window.DATE_DURATION_MAX;
+        }
         return;
       }
 
@@ -1204,6 +1212,9 @@
           });
           if (typeof window.ATTENDANCE_CONFIRMATION_EXPIRES !== 'undefined') {
             setActiveBackendUrl(backend);
+            if (!_slotMsExplicitlySet && typeof window.DATE_DURATION_MAX === 'number') {
+              currentSlotMs = window.DATE_DURATION_MAX;
+            }
             return;
           }
         } catch (err) {
@@ -1738,7 +1749,9 @@
     const datesList = document.getElementById('datesList');
     let schedulePollInterval = null;
     let _schedulePollInFlight = false; // prevents concurrent polls when server is slow
-    let currentSlotMs = window.DATE_DURATION_MAX || 10 * 60 * 1000;
+    if (!_slotMsExplicitlySet && typeof window.DATE_DURATION_MAX === 'number') {
+      currentSlotMs = window.DATE_DURATION_MAX;
+    }
     let dateCountdownInterval = null;
     let currentActiveDateMs = null;
     let lastKnownDates = null;
@@ -3419,6 +3432,7 @@
         if (res.ok && data.dates) {
           if (data.slotMs) {
             currentSlotMs = data.slotMs;
+            _slotMsExplicitlySet = true;
           }
           // If the server is still computing this user's schedule in the background
           // (race: user just checked in), defer All Done evaluation entirely and just
@@ -3987,6 +4001,9 @@
 
       try {
         await ensureConstantsLoaded();
+        if (!_slotMsExplicitlySet && typeof window.DATE_DURATION_MAX === 'number') {
+          currentSlotMs = window.DATE_DURATION_MAX;
+        }
         await checkAdminAuth();
         const res = await apiFetch(`/api/users/${uuid}`);
         const data = await res.json();
@@ -4314,6 +4331,7 @@
 
     window._initBackgroundAudio = initBackgroundAudio;
     window._requestScreenWakeLock = requestScreenWakeLock;
+    window._getCurrentSlotMs = () => currentSlotMs;
 
   </script>
 </body>
