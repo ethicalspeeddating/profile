@@ -990,7 +990,7 @@
     </div>
   </div>
 
-  <audio id="alarmAudio" src="alarm.wav" preload="auto" playsinline style="display:none;"></audio>
+  <audio id="alarmAudio" preload="auto" playsinline style="display:none;"></audio>
   <audio id="silentBgAudio" loop playsinline preload="auto" src="data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA" style="display:none;"></audio>
 
   <div id="alarmNotice" class="find-person-overlay" role="dialog" aria-modal="true">
@@ -1041,7 +1041,7 @@
   <!-- Fullscreen Map Overlay -->
   <div id="mapOverlay" class="map-overlay" role="dialog" aria-modal="true" aria-label="Fullscreen map view">
     <button id="mapOverlayCloseBtn" class="map-overlay-close" type="button" aria-label="Close map">&times;</button>
-    <img id="mapOverlayImage" src="map.png" alt="Map walking route">
+    <img id="mapOverlayImage" alt="Map walking route">
   </div>
 
   <!-- Fullscreen Offline Overlay -->
@@ -1087,7 +1087,7 @@
   </div>
 
   <!-- Load shared constants before main script -->
-  <script src="constants.js?v=20261021"></script>
+  <!-- <script src="constants.js?v=20261021"></script> -->
 
   <script>
     // Time hook: tests can override window._getNow via page.addInitScript before page scripts run.
