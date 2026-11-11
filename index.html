@@ -2071,17 +2071,42 @@
       return (window.SHOW_NEXT_DATE_PROFILE_WITH_HIDDEN_PHOTO_BEFORE_STARTS_S || 60) * 1000;
     }
 
+    function getCheckinCloseTimeMs(eventStartMs, user = currentUser) {
+      const reportedCloseMs = Number(user?.CheckinClosesAtMs);
+      if (Number.isFinite(reportedCloseMs) && reportedCloseMs > 0) {
+        return reportedCloseMs;
+      }
+      const defaultCloseAfterMs = (typeof window !== 'undefined' && typeof window.CHECKIN_CLOSES_AFTER === 'number' && window.CHECKIN_CLOSES_AFTER > 0)
+        ? window.CHECKIN_CLOSES_AFTER
+        : (typeof CHECKIN_CLOSES_AFTER === 'number' && CHECKIN_CLOSES_AFTER > 0 ? CHECKIN_CLOSES_AFTER : 29.5 * 60 * 1000);
+      return Number.isFinite(eventStartMs) ? eventStartMs + defaultCloseAfterMs : 0;
+    }
+    window.getCheckinCloseTimeMs = getCheckinCloseTimeMs;
+
     function isCheckinClosed() {
       if (_scheduleCheckinClosed) return true;
       if (currentUser && currentUser.EventDate && currentUser.EventTime) {
         const [y, mo, d] = currentUser.EventDate.split('-').map(Number);
         const [h, m] = currentUser.EventTime.split(':').map(Number);
         const eventStartMs = Date.UTC(y, mo - 1, d, h, m, 0, 0);
-        return window._getNow() >= eventStartMs + CHECKIN_CLOSES_AFTER;
+        return window._getNow() >= getCheckinCloseTimeMs(eventStartMs);
       }
       return false;
     }
     window.isCheckinClosed = isCheckinClosed;
+
+    function hasEventDurationElapsed() {
+      if (!currentUser?.EventDate || !currentUser?.EventTime) return false;
+      const [y, mo, d] = currentUser.EventDate.split('-').map(Number);
+      const [h, m] = currentUser.EventTime.split(':').map(Number);
+      const eventStartMs = Date.UTC(y, mo - 1, d, h, m, 0, 0);
+      if (!Number.isFinite(eventStartMs)) return false;
+      const maxDurationMs = (typeof window !== 'undefined' && typeof window.EVENT_MAX_DURATION === 'number' && window.EVENT_MAX_DURATION > 0)
+        ? window.EVENT_MAX_DURATION
+        : (typeof EVENT_MAX_DURATION === 'number' && EVENT_MAX_DURATION > 0 ? EVENT_MAX_DURATION : 90 * 60 * 1000);
+      return window._getNow() >= eventStartMs + maxDurationMs;
+    }
+    window.hasEventDurationElapsed = hasEventDurationElapsed;
 
     function isCheckinOpen() {
       if (!currentUser || !currentUser.EventDate || !currentUser.EventTime || isCheckinClosed()) return false;
@@ -3434,11 +3459,9 @@
             currentSlotMs = data.slotMs;
             _slotMsExplicitlySet = true;
           }
-          // If the server is still computing this user's schedule in the background
-          // (race: user just checked in), defer All Done evaluation entirely and just
-          // render the (empty) dates section.  The response is not cached server-side
-          // so the very next poll will see the freshly-written rows.
-          if (data.schedulePending) {
+          // Defer All Done while the event can still have date slots. Once the hard
+          // event duration has elapsed, pending scheduling cannot produce a valid date.
+          if (data.schedulePending && !hasEventDurationElapsed()) {
             _schedPending = true;
             renderDates(data.dates);
             setDatesCalloutVisible(true);
@@ -3457,7 +3480,9 @@
             (() => {
               const [ey, emo, ed] = currentUser.EventDate.split('-').map(Number);
               const [eh, em] = currentUser.EventTime.split(':').map(Number);
-              return window._getNow() > Date.UTC(ey, emo - 1, ed, eh, em, 0, 0) + CHECKIN_CLOSES_AFTER;
+              return window._getNow() > getCheckinCloseTimeMs(
+                Date.UTC(ey, emo - 1, ed, eh, em, 0, 0),
+              );
             })();
 
           // The server may return checkinClosed:true while some dates are still upcoming
@@ -3534,7 +3559,9 @@
           if (ed && et) {
             const [ey, emo, eday] = ed.split('-').map(Number);
             const [eh, em] = et.split(':').map(Number);
-            if (window._getNow() > Date.UTC(ey, emo - 1, eday, eh, em) + CHECKIN_CLOSES_AFTER) {
+            if (window._getNow() > getCheckinCloseTimeMs(
+              Date.UTC(ey, emo - 1, eday, eh, em),
+            )) {
               _datesFinished = true;
               showAllDoneDialog();
             }
@@ -3582,8 +3609,9 @@
       const deadline = new Date(eventDT.getTime() - ATTENDANCE_CONFIRMATION_EXPIRES);
 
       function updateConfirmCountdown() {
+        window.updateConfirmCountdown = updateConfirmCountdown;
         const now = window._getNow();
-        const checkinCloseTimeMs = eventDT.getTime() + CHECKIN_CLOSES_AFTER;
+        const checkinCloseTimeMs = getCheckinCloseTimeMs(eventDT.getTime(), user);
         const checkinClosed = now >= checkinCloseTimeMs;
         const remaining = deadline.getTime() - now;
 
@@ -3674,11 +3702,12 @@
         const [h, m] = user.EventTime.split(':').map(Number);
         const eventDT = new Date(Date.UTC(year, month - 1, day, h, m, 0, 0));
         checkinOpenTime = new Date(eventDT.getTime() - CHECKIN_OPENS_BEFORE);
-        checkinCloseTime = new Date(eventDT.getTime() + CHECKIN_CLOSES_AFTER);
+        checkinCloseTime = new Date(getCheckinCloseTimeMs(eventDT.getTime(), user));
         setEventDateTimeVisible(true);
       }
 
       function updateCountdown() {
+        window.updateCountdown = updateCountdown;
         if (_checkinInFlight) {
           return;
         }
