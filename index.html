@@ -864,11 +864,11 @@
       <br id="eventDateTimeBr"/>
       <div id="checkinWarning" style="font-weight: bold; margin-bottom: 12px; display: none;">
         <div id="checkinWarningBeforeLocation" style="display:none;">
-          Do not check in before you have found:<br/><br/>
+          Do NOT check in before you have arrived at:<br/><br/>
         </div>
         <div id="location" style="font-weight:bold; color:#ff6b6b;"></div>
         <div id="checkinWarningAfterLocation" style="display:none;">
-          <br/>If you check in before you have found the exact location, your dates will run without you and your dates will not be able to find you!
+          <br/>If you check in before you have arrvived at the exact location, your date will start without you meaning your date will not be able to find you and may report you as absent!
         </div>
       </div>
       <button id="confirmBtn">Confirm Attendance</button>
@@ -887,8 +887,8 @@
           </li> -->
           <li>Stroll slowly, chatting individually with your current date within your group as indicated</li>
           <li><b>As soon as you hear the next date alarm please return to the start point to meet your next date</b></li>
-          <li>Each date maybe a different length
-          <br/><small>This keeps the event running smoothly for everyone when people check in late or do not arrive and minimises everyone's break lengths</small></li>
+          <li>Each date maybe a different length and future dates maybe re-ordered
+          <br/><small>This keeps the event running smoothly for everyone when people check in late, do not arrive or leave the event early and minimises everyone's break lengths</small></li>
           <li><b>Keep this app open at all times on your mobile - the alarm will NOT sound if this screen is in the background</b></li>
           <li>If you cannot find your date, after searching for them, please click "I can't find them"</li>
           <li>If too many of your dates report they can't find you, the system will assume you have left and ALL your future dates will be cancelled
@@ -1152,8 +1152,17 @@
       return (backend ? backend : '') + '/unknown-man-and-woman.avif';
     }
 
+    // Set from the /api/schedule response. Only DATE_EVERYONE events send dateEveryone:true.
+    let dateEveryoneMode = false;
+
+    // Which half of the man-and-woman image to show. The full unsliced image is never shown.
+    // Normal events: the date's sex if known, else the opposite of the viewer.
+    // DATE_EVERYONE: the date's sex if known, else the viewer's sex, or female if neither is known.
     function getSilhouetteSex(partnerSex) {
       if (partnerSex) return partnerSex;
+      if (dateEveryoneMode) {
+        return currentUser && (currentUser.Sex === 'Male' || currentUser.Sex === 'Female') ? currentUser.Sex : 'Female';
+      }
       if (currentUser && currentUser.Sex === 'Male') return 'Female';
       if (currentUser && currentUser.Sex === 'Female') return 'Male';
       return '';
@@ -3014,12 +3023,16 @@
           info.appendChild(nameEl);
         } else if (isMystery) {
           // Future date or upcoming break before check-in closes — hide identity until slot starts.
-          // Use the viewer's sex to pick the correct silhouette half:
-          // male viewer → dates are female → woman half; female viewer → dates are male → man half.
+          // Pick the silhouette half (never the full image):
+          // normal events: male viewer → dates are female → woman half; female viewer → man half.
+          // DATE_EVERYONE: the date's sex if known, otherwise the viewer's own sex.
+          const _mystSex = dateEveryoneMode
+            ? getSilhouetteSex(d.partner && d.partner.sex)
+            : (currentUser && currentUser.Sex) === 'Male' ? 'Female' : 'Male';
           const mystImg = document.createElement('img');
           mystImg.src = getMysteryPhotoUrl();
           mystImg.alt = '?';
-          mystImg.className = 'mystery-face' + ((currentUser && currentUser.Sex) === 'Male' ? ' mystery-woman' : '');
+          mystImg.className = 'mystery-face' + (_mystSex === 'Female' ? ' mystery-woman' : '');
           item.appendChild(mystImg);
           
           const mystNameEl = document.createElement('div');
@@ -3052,7 +3065,7 @@
           const photoSrc = getPartnerPhotoSrc(d.partner);
           if (photoSrc) {
             img.src = photoSrc;
-            const pSex = d.partner?.sex || (currentUser && currentUser.Sex === 'Male' ? 'Female' : (currentUser && currentUser.Sex === 'Female' ? 'Male' : ''));
+            const pSex = getSilhouetteSex(d.partner?.sex);
             img.onerror = () => {
               img.src = getMysteryPhotoUrl();
               img.className = 'mystery-face' + (pSex === 'Female' ? ' mystery-woman' : '');
@@ -3303,10 +3316,11 @@
       }
 
       // Pad the list with mystery '?' rows while check-in remains open.
-      // Infer expected partner sex from viewer's sex (opposite gender in standard speed dating).
+      // Infer expected partner sex from viewer's sex (opposite gender in standard speed dating;
+      // the viewer's own sex in DATE_EVERYONE).
       if (!isMatchingAvailable() && !isCheckinClosed()) {
-        const _viewerSex = currentUser && currentUser.Sex;
-        const _padWoman = _viewerSex === 'Male';  // viewer is male → dates are female
+        const _viewerSex = (currentUser && currentUser.Sex) || (dateEveryoneMode ? 'Female' : '');
+        const _padWoman = dateEveryoneMode ? _viewerSex === 'Female' : _viewerSex === 'Male';
         const _lastTsMs = augmentedDates.length > 0 ? augmentedDates[augmentedDates.length - 1].timestampMs : Date.now();
         for (let _pi = augmentedDates.length; _pi < DATES_LIST_SIZE; _pi++) {
           const padTsMs = _lastTsMs + (_pi - augmentedDates.length + 1) * currentSlotMs;
@@ -3455,6 +3469,7 @@
           _scheduleCheckinClosed = data.checkinClosed;
         }
         if (res.ok && data.dates) {
+          dateEveryoneMode = data.dateEveryone === true;
           if (data.slotMs) {
             currentSlotMs = data.slotMs;
             _slotMsExplicitlySet = true;
@@ -3846,8 +3861,8 @@
       const eventStartMs = Date.UTC(y, mo - 1, d, hUtc, mUtc, 0);
 
       datesList.innerHTML = '';
-      const _viewerSex = user.Sex;
-      const _padWoman = _viewerSex === 'Male';
+      const _viewerSex = user.Sex || (dateEveryoneMode ? 'Female' : '');
+      const _padWoman = dateEveryoneMode ? _viewerSex === 'Female' : _viewerSex === 'Male';
       
       for (let _pi = 0; _pi < DATES_LIST_SIZE; _pi++) {
         const padTsMs = eventStartMs + _pi * currentSlotMs;
